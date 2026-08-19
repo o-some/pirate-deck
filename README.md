@@ -1,1 +1,3 @@
 # pirate-deck
+
+Deployment trigger: 2026-08-19
