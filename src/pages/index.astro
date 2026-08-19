@@ -1,12 +1,96 @@
 ---
 const rawBase = import.meta.env.BASE_URL;
 const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+const assetRoot = 'https://raw.githubusercontent.com/o-some/tulasisland/main';
+const kai = `${assetRoot}/public/letter-bay/bosses/level-01-pirat-kai.webp`;
+const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
 ---
-<!doctype html><html lang="de"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#03243d"/><title>Pirate Deck · Tula’s Island</title><link rel="stylesheet" href={`${base}pirate-deck.css`}/></head><body>
-<div class="app" id="app"><header class="hud"><button class="circle" aria-label="Zurück">‹</button><div class="brand"><small>TULA’S ISLAND</small><b>PIRATE DECK</b></div><div class="chip"><span>🐚</span><b id="shells">0</b></div></header>
-<section class="bossbar"><div class="bossbar-top"><div><small>LEVEL 1 · PIRATENBOSS</small><strong>Pirat Kai</strong></div><b class="hptext" id="bossHpText">24 / 24</b></div><div class="health"><i id="bossHp"></i></div></section>
-<main class="battle"><section class="boss-stage"><img class="boss-img" src={`${base}pirat-kai.svg`} alt="Pirat Kai"/><div class="boss-copy"><span class="boss-kicker">BOSSFIGHT</span><strong class="boss-name">Pirat Kai</strong><div class="taunt" id="taunt">„Na los, Inselkröte! <b>Zeig mir deine Wortkraft.</b>“</div></div></section><div class="field-title"><span>KAIS CREW</span><span>3 KARTENPLÄTZE</span></div><div class="lanes" id="enemyLanes"><div class="slot">FREI</div><div class="slot">FREI</div><div class="slot">FREI</div></div><div class="field-title"><span>DEINE CREW</span><span>TIPPE UNTEN EINE KARTE</span></div><div class="lanes" id="playerLanes"><div class="slot">DEIN PLATZ</div><div class="slot">DEIN PLATZ</div><div class="slot">DEIN PLATZ</div></div><div class="playerbar"><div class="player-info"><small>TULA · ❤️ <span id="playerHp">20</span></small><div class="health player"><i id="playerHpBar"></i></div></div><div><small>WELLENKRAFT</small><div class="energy" id="energy"></div></div></div></main>
-<section class="hand"><div class="hand-title"><small>DEINE HAND</small><small>KARTE ANTIPPEN</small></div><div class="cards" id="cards"></div><div class="footer-actions"><button class="end" id="endTurn">⚔️ ZUG BEENDEN</button><button class="mini" id="restart" aria-label="Neu starten">↻</button></div></section><div class="log" id="log">Spiele eine Karte. Richtige Übersetzungen machen sie stärker.</div></div>
-<div class="learn" id="learn"><div class="sheet"><small>KARTEN-MEISTERSCHAFT · DE → EN</small><h2 id="questionTitle">Was bedeutet …?</h2><p id="questionCopy"></p><div class="answers" id="answers"></div><div class="mastery" id="mastery">Richtig = voller Karteneffekt. Falsch = die Karte wird schwächer gespielt und Kai bekommt einen Vorteil.</div></div></div>
-<div class="overlay" id="intro"><div class="intro"><div class="intro-hero"><img src={`${base}pirat-kai.svg`} alt="Pirat Kai"/><img src="https://o-some.github.io/tulasisland/assets/illustrations/tula-anime.svg" alt="Tula"/></div><small>TULA’S ISLAND PRÄSENTIERT</small><h1>Pirate Deck</h1><p>Baue deine Crew, löse Sprachkarten und besiege die Piratenbosse. Jede richtige Antwort verstärkt deinen Zug.</p><div class="boss-path" aria-label="Bossfortschritt"><i class="boss-dot active"></i><i class="boss-dot"></i><i class="boss-dot"></i><i class="boss-dot"></i><i class="boss-dot"></i><i class="boss-dot"></i><i class="boss-dot"></i><i class="boss-dot"></i><i class="boss-dot"></i><i class="boss-dot"></i></div><button id="start">⚔️ DUELL GEGEN PIRAT KAI</button><span class="note">Deutsch → Englisch · Mobile Battle Prototype</span></div></div>
-<script src={`${base}pirate-deck.js`} defer></script></body></html>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#031b30" />
+  <title>Pirate Deck · Tula’s Island</title>
+  <link rel="stylesheet" href={`${base}pirate-deck.css`} />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="game-header">
+      <button class="round-action" aria-label="Zurück">‹</button>
+      <div class="title-plaque" aria-label="Pirate Deck – Tula's Island">
+        <span class="wheel">☸</span>
+        <strong>PIRATE DECK</strong>
+        <small>TULA’S ISLAND</small>
+      </div>
+      <button class="round-action" id="restart" aria-label="Neu starten">↻</button>
+    </header>
+
+    <section class="battle-hud" aria-label="Spielstatus">
+      <div class="hud-stat hud-shells"><small>MUSCHELN</small><b>🐚 <span id="shells">0</span></b></div>
+      <div class="hud-stat"><small>WELLENKRAFT</small><b id="energyText">3 / 3</b></div>
+      <div class="turn-medallion"><small>ZUG</small><b id="turnNo">1</b></div>
+      <div class="hud-stat hud-health"><small>TULA ❤️</small><b><span id="playerHp">20</span> / 20</b><div class="health player"><i id="playerHpBar"></i></div></div>
+      <div class="hud-stat hud-health"><small>KAI ❤️</small><b id="bossHpText">24 / 24</b><div class="health"><i id="bossHp"></i></div></div>
+    </section>
+
+    <main class="battle-board">
+      <section class="boss-stage">
+        <div class="boss-copy">
+          <span class="boss-ribbon">☠ BOSSFIGHT</span>
+          <h1>PIRAT KAI</h1>
+          <p id="taunt">„Na los, Inselkröte! <b>Zeig mir deine Wortkraft.</b>“</p>
+          <div class="boss-progress"><span>☠ BOSS 1 / 10</span><div class="boss-dots" aria-label="Bossfortschritt"><i class="active"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        </div>
+        <div class="boss-visual"><div class="boss-aura"></div><img class="boss-img" id="bossSprite" src={kai} alt="Pirat Kai" /></div>
+      </section>
+
+      <section class="field enemy-field">
+        <div class="wood-banner">☠ KAIS CREW</div>
+        <div class="lanes" id="enemyLanes"><div class="slot">FREI</div><div class="slot">FREI</div><div class="slot">FREI</div></div>
+      </section>
+
+      <section class="player-stage">
+        <div class="tula-visual"><div class="tula-aura"></div><img id="tulaSprite" src={tula} alt="Tula" /></div>
+        <div class="player-field">
+          <div class="blue-banner">DEIN PLATZ</div>
+          <div class="lanes" id="playerLanes"><div class="slot">DEIN PLATZ</div><div class="slot">DEIN PLATZ</div><div class="slot">DEIN PLATZ</div></div>
+          <div class="energy-line"><span>WELLENKRAFT</span><div class="energy" id="energy"></div></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="instruction"><span class="info-badge">i</span><b id="log">Spiele eine Karte. Richtige Übersetzungen machen sie stärker.</b><span class="chest">▣</span></div>
+
+    <section class="hand">
+      <div class="hand-title"><small>DEINE HAND</small><small>KARTE ANTIPPEN</small></div>
+      <div class="cards" id="cards"></div>
+      <div class="footer-actions"><button class="end" id="endTurn">⚔ ZUG BEENDEN</button></div>
+    </section>
+  </div>
+
+  <div class="learn" id="learn" aria-modal="true" role="dialog">
+    <div class="sheet">
+      <small>KARTEN-MEISTERSCHAFT · DE → EN</small>
+      <h2 id="questionTitle">Was bedeutet …?</h2>
+      <p id="questionCopy"></p>
+      <div class="answers" id="answers"></div>
+      <div class="mastery" id="mastery">Richtig = voller Karteneffekt. Falsch = die Karte wird schwächer gespielt und Kai bekommt einen Vorteil.</div>
+    </div>
+  </div>
+
+  <div class="overlay" id="intro">
+    <div class="intro">
+      <div class="intro-plaque"><span>☸</span><strong>PIRATE DECK</strong><small>TULA’S ISLAND</small></div>
+      <div class="intro-hero"><img src={tula} alt="Tula" /><img src={kai} alt="Pirat Kai" /></div>
+      <span class="boss-ribbon intro-ribbon">☠ BOSS 1 / 10</span>
+      <h2>Pirat Kai wartet.</h2>
+      <p>Baue deine Crew, löse Sprachkarten und besiege die Piratenbosse. Richtige Antworten verstärken deine Karten.</p>
+      <button id="start">⚔ DUELL STARTEN</button>
+      <span class="note">Deutsch → Englisch · Mobile Battle</span>
+    </div>
+  </div>
+
+  <script src={`${base}pirate-deck.js`} defer></script>
+</body>
+</html>
