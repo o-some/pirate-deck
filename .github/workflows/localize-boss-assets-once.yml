@@ -14,9 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
       - name: Rewrite runtime to local boss WebPs
         run: |
           python - <<'PY'
@@ -38,64 +35,29 @@ jobs:
 
           js_path = Path('public/pirate-deck.js')
           js = js_path.read_text()
-          matches = list(re.finditer(r"sprite:'[^']+'", js))
-          if len(matches) < 10:
-              raise SystemExit(f'Expected at least 10 boss sprite entries, found {len(matches)}')
-          i = 0
-          def repl(match):
-              nonlocal_i = repl.index
-              if nonlocal_i >= 10:
-                  return match.group(0)
-              value = f"sprite:'{files[nonlocal_i]}'"
-              repl.index += 1
-              return value
-          repl.index = 0
-          js = re.sub(r"sprite:'[^']+'", repl, js, count=10)
+          it = iter(files)
+          js, count = re.subn(r"sprite:'[^']+'", lambda m: f"sprite:'{next(it)}'", js, count=10)
+          if count != 10:
+              raise SystemExit(f'Expected 10 boss sprite replacements, got {count}')
           js_path.write_text(js)
 
           astro_path = Path('src/pages/index.astro')
           astro = astro_path.read_text()
-          astro = re.sub(
-              r"const assetRoot = 'https://raw\.githubusercontent\.com/o-some/tulasisland/main';\nconst kai = `\$\{assetRoot\}/public/letter-bay/bosses/level-01-pirat-kai\.webp`;",
-              "const kai = `${base}bosses/level-01-pirat-kai.webp`;",
-              astro,
-              count=1,
-          )
-          astro_path.write_text(astro)
-
-          manifest_path = Path('docs/ASSET_MANIFEST.md')
-          manifest = manifest_path.read_text()
-          for level, name in enumerate(files, start=1):
-              manifest = re.sub(
-                  rf"\| {level} \| ([^|]+) \| `([^`]+)` \| [^|]+ \|",
-                  rf"| {level} | \1 | `\2` | Local WebP: `public/{name}` |",
-                  manifest,
-                  count=1,
-              )
-          manifest = re.sub(
-              r"## Production hardening\n\n.*?\n\n## Ownership / handling",
-              "## Production hardening\n\nAll ten canonical boss sprites are now mirrored into this repository as optimized WebP assets under `public/bosses/`. Runtime boss rendering uses only these local relative files; Dropbox is retained solely as the master/source-of-truth location.\n\n## Ownership / handling",
-              manifest,
-              flags=re.S,
-          )
-          manifest_path.write_text(manifest)
+          old = "const assetRoot = 'https://raw.githubusercontent.com/o-some/tulasisland/main';\nconst kai = `${assetRoot}/public/letter-bay/bosses/level-01-pirat-kai.webp`;"
+          new = "const kai = `${base}bosses/level-01-pirat-kai.webp`;"
+          if old not in astro:
+              raise SystemExit('Expected Kai asset declaration not found in index.astro')
+          astro_path.write_text(astro.replace(old, new, 1))
           PY
-      - name: Install and build Astro
+      - name: Verify local runtime references
         run: |
-          npm install
-          npm run build
-      - name: Verify no Dropbox boss runtime references remain
-        run: |
-          if grep -n 'dropboxusercontent.com' public/pirate-deck.js; then
-            echo 'Dropbox runtime reference still present' >&2
-            exit 1
-          fi
-          test -f dist/bosses/level-01-pirat-kai.webp
-          test -f dist/bosses/level-10-piratenkoenig-varkos.webp
+          test -f public/bosses/level-01-pirat-kai.webp
+          test -f public/bosses/level-10-piratenkoenig-varkos.webp
+          ! grep -q 'dropboxusercontent.com' public/pirate-deck.js
       - name: Commit localized runtime
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/pirate-deck.js src/pages/index.astro docs/ASSET_MANIFEST.md package-lock.json
-          git commit -m 'Use local boss WebP assets and verify Astro build'
+          git add public/pirate-deck.js src/pages/index.astro
+          git commit -m 'Use local boss WebP assets at runtime'
           git push
