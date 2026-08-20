@@ -1,0 +1,76 @@
+name: Import boss assets once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/import-boss-assets-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check pillow
+      - name: Download canonical Dropbox PNGs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pirate-bosses public/bosses
+          curl -fL --retry 2 'https://uc38f0fb0451602cf2a418c77370.dl.dropboxusercontent.com/cd/0/get/DGgbAUVgeJx-iW50xiGYO6WT21ejTk_CsJ37qvuAOKk2XjhDZwqAA3uaciNX6Ju23yQmT0alNiHSc6-IKpyJ1LGMvRmx-iSw9XPdxNwCbyEt1GuVBA2dpdutOmVuDKS48MiCCe7gS-X57GkL16WXkvTH_jUsVE40lHdcSALtMgPMcQ/file?c_luid=88361d58' -o /tmp/pirate-bosses/01.png
+          curl -fL --retry 2 'https://uc3fee4f90ddbc5f492ff269a388.dl.dropboxusercontent.com/cd/0/get/DGhW7hFYxOMO7qvZiUVue67yGlSuB9f8gPEEmIbVnsGavYIJULE2kAKAiXLWIsDPokTB94PTEtB4mWNzqKgHFtFt8-ZBhLIHeWCKMOKra1huX8trMSyodV4uvxu0xk6VPMba9DzAU5mq3u0Gzqf6QShViu_V4f2kyDHxXJycgWRTHA/file?c_luid=88361d58' -o /tmp/pirate-bosses/02.png
+          curl -fL --retry 2 'https://ucfb78bc283c6f23b89670214935.dl.dropboxusercontent.com/cd/0/get/DGjE2EdrAwoXbkPtZsRrMYcT4jUSDYswS12Df8LJCKTVKXbunyYccDvhEBAkKas0AxW8BbSeVca0-YNH-Oy6jT8kJcQxVwEU8954-dXtla3ItjnZd877rtNJ06gvS8TgjU2ypi1HF91lXemMSgarE3HlX-vOLT0ZmOTvrvWOB3SNWw/file?c_luid=88361d58' -o /tmp/pirate-bosses/03.png
+          curl -fL --retry 2 'https://uc4f86e70b7275611821d604ab92.dl.dropboxusercontent.com/cd/0/get/DGiOHpHznxM_Q75Eo8wheeFd5m-j7-KVKFnhDmKXbZ5ZjEqB_PNeOvk9lhLcQKQbNT9uXJlVdmgnqZwsnhFGYcz0jVfccd1g5yJs9RM3d2son0sx1_RcqW0tmdkpXfPDymB00BP1wAKP_UKirPxtqs5ddTCPN2fGP_t4lg94N4yXbA/file?c_luid=88361d58' -o /tmp/pirate-bosses/04.png
+          curl -fL --retry 2 'https://ucc84d7cda0a2bd5ced36dfdccf4.dl.dropboxusercontent.com/cd/0/get/DGia_ujrMSgTtShmu7g_n408ByzkCefs3VPIsQiqjJoY9akxP8mCQo4whML8aTDh4u98oUW9dZyRvtszpHahiU3UZO4ut6Ib9jJQGCFH1QcsFnXc3QnDCgmoUeZSPD2y662P-CYeyK2K9zSeZRz7VNEfC-xIELUEPTLJEMkiUf5J5w/file?c_luid=88361d58' -o /tmp/pirate-bosses/05.png
+          curl -fL --retry 2 'https://uccc49bf287c897552364baff5ca.dl.dropboxusercontent.com/cd/0/get/DGh87_L6tGrJ5Q7UlMMXUL5dbiIjnIWOW2-5vSR9vb4ZWSX4CwzEMFIrtcniFwZS9AxYNTz28JBvuCMYkPv3TmVCkErgzpTW_gL6kqIXb4iHM2hCyIPw5pGiw7BmStuEpASsC40RZVxiDDLdu1yJtaSROUrqAwx4SPWlTEyS2HEVuw/file?c_luid=88361d58' -o /tmp/pirate-bosses/06.png
+          curl -fL --retry 2 'https://uc6423acff25e8636110517e82d0.dl.dropboxusercontent.com/cd/0/get/DGjKaAVKE6_cx01XN-keShOvrt5VtpRClM2r7VgzjEfFuiu4TAlu36UIBqeFzHWCoTRe2MDWR6kjCVA_H7QnLJ3LosL7F0oef8yxbxHlf2kakzbdM_Fd_uhuPZe-XeAKu3LG0cMla-xsptspfeTAcLAhxijbBDzo1-r_RdDVAYq3Rw/file?c_luid=88361d58' -o /tmp/pirate-bosses/07.png
+          curl -fL --retry 2 'https://uc433d2c7b57061a1ee9c6c40b71.dl.dropboxusercontent.com/cd/0/get/DGhDcWuXiF7ejoe6M_VZoXGLmsUi6QxwQHMvEVnw5i3FD0WErdJQpRDsuHpotE3wCGskSwfvR95K7JMSAAAicPrp-jeg0B54PJsKHqHwvzx2Om60wRkJfswxvBqYwY2bQ0OWB2VOyIowjH7g49oXC6K4mALpesq3wNBURuhIXxUY2A/file?c_luid=88361d58' -o /tmp/pirate-bosses/08.png
+          curl -fL --retry 2 'https://uc0ea025172c125b7fcfe0f72edf.dl.dropboxusercontent.com/cd/0/get/DGi4VOZgeFk7RJduzwF_jW-ji6iCkDNXZFjDGzDKIwFN7LIr83GHx43ROj4vX8tK_j_FUBDAYqShNC0kq4rhhtS5rZS8Y8rjd7Yykz4xk4aRTgkKvy4Qckgob0bT1JZVXFJp0z-aRwbOVuCf4g6hZUHaZkXMAvAupTIJ3GSb8D3-jw/file?c_luid=88361d58' -o /tmp/pirate-bosses/09.png
+          curl -fL --retry 2 'https://ucce54b5eb094f45f2e55fd274d9.dl.dropboxusercontent.com/cd/0/get/DGh76jj6vMCN044wqjzo_aApgTmKTOW9wuZ2dIl0b08l22OlV1YEHTDM-CcS68K47m1-BFM6Key8sF3QZPADWUcg9YZ1k23ZI0KuXidl4UZLyasUEBN7lEgfw_kv0RuooQ_KkdANMuDRydwyf9sUwrWr8ZvLb2zI9zz3N9hd6gMHBw/file?c_luid=88361d58' -o /tmp/pirate-bosses/10.png
+      - name: Convert to optimized transparent WebP
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          names = {
+            1:'level-01-pirat-kai.webp',
+            2:'level-02-kapitaen-brax.webp',
+            3:'level-03-blackfinn.webp',
+            4:'level-04-alt-kapitaen-roderick.webp',
+            5:'level-05-piratenbaron-vargas.webp',
+            6:'level-06-kapitaen-ironhook.webp',
+            7:'level-07-admiral-thorne.webp',
+            8:'level-08-kartenmeister-corvin.webp',
+            9:'level-09-schattenfuerst-azrak.webp',
+            10:'level-10-piratenkoenig-varkos.webp',
+          }
+          out = Path('public/bosses')
+          out.mkdir(parents=True, exist_ok=True)
+          for i, name in names.items():
+              src = Path('/tmp/pirate-bosses') / f'{i:02d}.png'
+              im = Image.open(src)
+              if 'A' in im.getbands() or 'transparency' in im.info:
+                  im = im.convert('RGBA')
+              else:
+                  im = im.convert('RGB')
+              max_dim = 1600
+              if max(im.size) > max_dim:
+                  scale = max_dim / max(im.size)
+                  im = im.resize((round(im.width*scale), round(im.height*scale)), Image.Resampling.LANCZOS)
+              im.save(out / name, 'WEBP', quality=90, method=6, exact=True)
+              print(name, im.size, (out/name).stat().st_size)
+          PY
+      - name: Commit local boss assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/bosses/*.webp
+          git commit -m 'Add local optimized boss WebP assets'
+          git push
