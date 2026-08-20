@@ -11,6 +11,7 @@
     island: { type: 'ORT', badge: 'SCHILD', effect: 'Schutzschild bei richtiger Übersetzung', accent: 'green' }
   };
 
+  const RULE_TEXT = 'Richtig = Karte wird gespielt. Falsch = Karte geht für diesen Bosskampf verloren.';
   const originalRender = render;
   const originalAsk = ask;
   const originalResolve = resolve;
@@ -68,6 +69,10 @@
   resolve = function patchedResolve(card, correct, button) {
     if (correct) {
       originalResolve(card, true, button);
+      setTimeout(() => {
+        const mastery = document.getElementById('mastery');
+        if (mastery) mastery.textContent = RULE_TEXT;
+      }, 720);
       return;
     }
 
@@ -86,7 +91,7 @@
       if (!state.discarded.includes(card.id)) state.discarded.push(card.id);
 
       document.getElementById('learn')?.classList.remove('open');
-      if (mastery) mastery.textContent = 'Richtig = Karte wird gespielt. Falsch = Karte geht für diesen Bosskampf verloren.';
+      if (mastery) mastery.textContent = RULE_TEXT;
 
       const log = document.getElementById('log');
       if (log) log.textContent = `💥 ${card.name} verloren. Merke dir: ${card.name} = ${card.en}.`;
@@ -110,6 +115,6 @@
 
   if (state && !Array.isArray(state.discarded)) state.discarded = [];
   const initialMastery = document.getElementById('mastery');
-  if (initialMastery) initialMastery.textContent = 'Richtig = Karte wird gespielt. Falsch = Karte geht für diesen Bosskampf verloren.';
+  if (initialMastery) initialMastery.textContent = RULE_TEXT;
   enhanceCards();
 })();
