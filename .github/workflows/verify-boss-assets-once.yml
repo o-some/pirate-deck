@@ -1,0 +1,49 @@
+name: Verify boss assets once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-boss-assets-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Build Astro
+        run: npm run build
+      - name: Verify all local boss assets
+        run: |
+          set -euo pipefail
+          for f in \
+            level-01-pirat-kai.webp \
+            level-02-kapitaen-brax.webp \
+            level-03-blackfinn.webp \
+            level-04-alt-kapitaen-roderick.webp \
+            level-05-piratenbaron-vargas.webp \
+            level-06-kapitaen-ironhook.webp \
+            level-07-admiral-thorne.webp \
+            level-08-kartenmeister-corvin.webp \
+            level-09-schattenfuerst-azrak.webp \
+            level-10-piratenkoenig-varkos.webp; do
+            test -s "public/bosses/$f"
+            test -s "dist/bosses/$f"
+          done
+          ! grep -R -n 'dropboxusercontent.com' dist public/pirate-deck.js
+      - name: Record successful verification
+        run: |
+          printf '# Pirate Deck build verification\n\n- Astro build: PASS\n- Local boss WebPs in dist: 10/10 PASS\n- Dropbox boss runtime references: 0 PASS\n- Verified commit: %s\n' "$GITHUB_SHA" > docs/BUILD_VERIFIED.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/BUILD_VERIFIED.md
+          git commit -m 'Record successful Pirate Deck boss build verification'
+          git push
