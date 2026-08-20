@@ -21,6 +21,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
   <link rel="stylesheet" href={`${base}pirate-deck-cards-toast.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-card-ui-v2.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-hand-premium-v3.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-guide-v1.css`} />
 </head>
 <body>
   <div class="app" id="app">
@@ -121,9 +122,41 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
     </div>
   </div>
 
+  <div class="guide-overlay" id="gameGuide" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+    <div class="guide-card">
+      <div class="guide-kicker">⚓ SPIELANLEITUNG</div>
+      <h2 id="guideTitle">So funktioniert Pirate Deck</h2>
+      <p class="guide-lead">Besiege den Piratenboss mit deiner Crew – aber jede Karte muss zuerst sprachlich gemeistert werden.</p>
+      <div class="guide-grid">
+        <section class="guide-step">
+          <div class="guide-step-head"><span class="guide-icon">🃏</span><strong>1. Karte wählen</strong></div>
+          <p>Tippe unten eine Karte an. Die türkise Anzeige wie <span class="guide-cost-demo">🌊 2</span> zeigt, wie viel <b>Wellenkraft</b> sie kostet.</p>
+        </section>
+        <section class="guide-step">
+          <div class="guide-step-head"><span class="guide-icon">💬</span><strong>2. Übersetzen</strong></div>
+          <p>Wähle die richtige Übersetzung. <b>Richtig:</b> Die Karte wird gespielt und erhält ihren Bonus. <b>Falsch:</b> Die Karte ist für diesen Bosskampf verloren.</p>
+        </section>
+        <section class="guide-step">
+          <div class="guide-step-head"><span class="guide-icon">🌊</span><strong>3. Wellenkraft</strong></div>
+          <p>Du startest mit <b>3 / 3 Wellenkraft</b>. Jede Karte verbraucht ihren angezeigten Wert. Nach „Zug beenden“ wird sie aufgefüllt und dein Maximum steigt schrittweise.</p>
+        </section>
+        <section class="guide-step">
+          <div class="guide-step-head"><span class="guide-icon">⚔</span><strong>4. Zug beenden</strong></div>
+          <p>Deine ausgespielte Crew greift den Boss an. Danach schlägt die Piratencrew zurück, du ziehst nach und der nächste Zug beginnt.</p>
+        </section>
+      </div>
+      <div class="guide-warning">🎯 Ziel: Boss-Leben auf 0 bringen, bevor Tulas 20 Leben aufgebraucht sind. Fehler kosten echte Karten – also lieber genau hinschauen.</div>
+      <div class="guide-actions">
+        <label class="guide-skip"><input type="checkbox" id="guideSkip" /> Anleitung künftig überspringen</label>
+        <button class="guide-start" id="guideStart" type="button">⚔ VERSTANDEN · DUELL STARTEN</button>
+      </div>
+    </div>
+  </div>
+
   <script src={`${base}pirate-deck.js`} defer></script>
   <script src={`${base}pirate-deck-card-rules-v2.js`} defer></script>
   <script src={`${base}pirate-deck-asset-guard.js`} defer></script>
   <script src={`${base}pirate-deck-info-toast.js`} defer></script>
+  <script src={`${base}pirate-deck-guide-v1.js`} defer></script>
 </body>
 </html>
