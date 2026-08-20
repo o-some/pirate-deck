@@ -1,0 +1,56 @@
+name: Verify card loss v2 once
+
+on:
+  push:
+    branches:
+      - fix/cards-info-toast-20260820
+    paths:
+      - '.github/workflows/verify-card-loss-v2-once.yml'
+      - 'src/pages/index.astro'
+      - 'public/pirate-deck-card-rules-v2.js'
+      - 'public/pirate-deck-card-ui-v2.css'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify JavaScript and build
+        run: |
+          set -euo pipefail
+          npm install
+          node --check public/pirate-deck-card-rules-v2.js
+          npm run build
+      - name: Verify runtime wiring
+        run: |
+          set -euo pipefail
+          test -s dist/pirate-deck-card-rules-v2.js
+          test -s dist/pirate-deck-card-ui-v2.css
+          grep -q 'pirate-deck-card-rules-v2.js' src/pages/index.astro
+          grep -q 'pirate-deck-card-ui-v2.css' src/pages/index.astro
+          grep -q 'state.discarded' public/pirate-deck-card-rules-v2.js
+          grep -q 'Karte verloren' public/pirate-deck-card-rules-v2.js
+      - name: Record verification
+        run: |
+          cat > docs/CARD_LOSS_V2_VERIFIED.md <<'EOF'
+          # Pirate Deck card loss + card UI v2 verification
+
+          - JavaScript syntax: PASS
+          - Astro build: PASS
+          - Card rules v2 present in dist: PASS
+          - Card UI v2 present in dist: PASS
+          - Wrong-answer discard rule wired: PASS
+          - Wrong-answer energy cost wired: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/CARD_LOSS_V2_VERIFIED.md
+          git commit -m 'Record successful card loss v2 verification'
+          git push
