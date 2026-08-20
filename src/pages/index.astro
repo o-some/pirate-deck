@@ -19,6 +19,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
   <link rel="stylesheet" href={`${base}pirate-deck-mobile-final.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-desktop-fit.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-cards-toast.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-card-ui-v2.css`} />
 </head>
 <body>
   <div class="app" id="app">
@@ -85,7 +86,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
     </div>
 
     <section class="hand">
-      <div class="hand-title"><small>DEINE HAND</small><small>KARTE ANTIPPEN</small></div>
+      <div class="hand-title"><small>DEINE HAND</small><small>ANTIPPEN → ÜBERSETZEN</small></div>
       <div class="cards" id="cards"></div>
       <div class="footer-actions"><button class="end" id="endTurn">⚔ ZUG BEENDEN</button></div>
     </section>
@@ -103,7 +104,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
       <h2 id="questionTitle">Was bedeutet …?</h2>
       <p id="questionCopy"></p>
       <div class="answers" id="answers"></div>
-      <div class="mastery" id="mastery">Richtig = voller Karteneffekt. Falsch = die Karte wird schwächer gespielt.</div>
+      <div class="mastery" id="mastery">Richtig = Karte wird gespielt. Falsch = Karte geht für diesen Bosskampf verloren.</div>
     </div>
   </div>
 
@@ -120,6 +121,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
   </div>
 
   <script src={`${base}pirate-deck.js`} defer></script>
+  <script src={`${base}pirate-deck-card-rules-v2.js`} defer></script>
   <script src={`${base}pirate-deck-asset-guard.js`} defer></script>
   <script src={`${base}pirate-deck-info-toast.js`} defer></script>
 </body>
