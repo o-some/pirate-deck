@@ -18,6 +18,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
   <link rel="stylesheet" href={`${base}pirate-deck-ci-pass.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-mobile-final.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-desktop-fit.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-cards-toast.css`} />
 </head>
 <body>
   <div class="app" id="app">
@@ -68,7 +69,20 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
       </section>
     </main>
 
-    <div class="instruction"><span class="info-badge">i</span><b id="log">Spiele eine Karte. Richtige Übersetzungen machen sie stärker.</b><span class="chest">▣</span></div>
+    <div class="info-toast is-minimized" id="infoToast" aria-label="Spielhinweis">
+      <button class="info-toast-mini" id="infoToastMini" type="button" aria-label="Letzten Spielhinweis öffnen" title="Spielhinweis öffnen">
+        <span class="mini-icon">i</span>
+        <span class="mini-dot" aria-hidden="true"></span>
+      </button>
+      <div class="info-toast-panel" id="infoToastPanel" role="status" aria-live="polite">
+        <span class="info-badge" aria-hidden="true">i</span>
+        <div class="info-toast-copy">
+          <small>SPIELHINWEIS</small>
+          <b id="log">Spiele eine Karte. Richtige Übersetzungen machen sie stärker.</b>
+        </div>
+        <button class="info-toast-close" id="infoToastClose" type="button" aria-label="Spielhinweis minimieren" title="Minimieren">−</button>
+      </div>
+    </div>
 
     <section class="hand">
       <div class="hand-title"><small>DEINE HAND</small><small>KARTE ANTIPPEN</small></div>
@@ -107,5 +121,6 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
 
   <script src={`${base}pirate-deck.js`} defer></script>
   <script src={`${base}pirate-deck-asset-guard.js`} defer></script>
+  <script src={`${base}pirate-deck-info-toast.js`} defer></script>
 </body>
 </html>
