@@ -1,0 +1,326 @@
+/* Pirate Deck — final card hand + animated info toast */
+
+/* ---------- Premium playable hand ---------- */
+.hand{
+  position:relative!important;
+  margin-top:6px!important;
+  padding:8px 9px 10px!important;
+  border:1.5px solid rgba(239,199,102,.72)!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(63,218,214,.08),transparent 38%),
+    linear-gradient(180deg,rgba(4,45,69,.97),rgba(1,24,41,.99))!important;
+  box-shadow:
+    inset 0 0 0 2px rgba(0,16,29,.8),
+    inset 0 0 0 3px rgba(239,199,102,.07),
+    0 8px 20px rgba(0,0,0,.22)!important;
+}
+.hand:before{
+  content:"";
+  position:absolute;
+  left:12px;right:12px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,226,135,.62),transparent);
+  pointer-events:none;
+}
+.hand-title{
+  margin:0 1px 6px!important;
+  padding:0 2px 6px!important;
+  border-bottom:1px solid rgba(239,199,102,.15)!important;
+}
+.hand-title small{
+  color:#f1d37d!important;
+  font-size:.52rem!important;
+  font-weight:1000!important;
+  letter-spacing:.12em!important;
+}
+.cards{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+  align-items:stretch!important;
+}
+.card{
+  position:relative!important;
+  isolation:isolate;
+  min-width:0!important;
+  height:156px!important;
+  padding:6px 5px 6px!important;
+  display:grid!important;
+  grid-template-rows:48px 32px minmax(34px,1fr) 22px!important;
+  align-items:stretch!important;
+  overflow:hidden!important;
+  border:1.5px solid #dbad43!important;
+  border-bottom:4px solid #6e4314!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#fff0b8 0 52%,#0b4059 52% 100%)!important;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.82),
+    inset 0 0 0 2px rgba(108,67,20,.10),
+    0 4px 0 #4c2d0e,
+    0 8px 14px rgba(0,0,0,.28)!important;
+  text-align:center!important;
+  transition:transform .14s ease,filter .14s ease,box-shadow .14s ease!important;
+}
+.card:before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:3px;right:3px;top:3px;height:50%;
+  border-radius:10px 10px 44% 44%;
+  background:radial-gradient(circle at 50% 22%,rgba(255,255,255,.52),rgba(255,224,116,.10) 58%,transparent 72%);
+  pointer-events:none;
+}
+.card:not(.disabled):hover{
+  transform:translateY(-2px)!important;
+  filter:brightness(1.035) saturate(1.03)!important;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.85),
+    inset 0 0 0 2px rgba(108,67,20,.10),
+    0 5px 0 #4c2d0e,
+    0 10px 18px rgba(0,0,0,.31),
+    0 0 15px rgba(58,219,215,.12)!important;
+}
+.card:not(.disabled):active{transform:translateY(2px) scale(.985)!important;}
+.card .cost{
+  z-index:5!important;
+  top:-5px!important;left:-5px!important;
+  width:29px!important;height:29px!important;
+  border:2px solid #d2ffff!important;
+  background:radial-gradient(circle at 35% 28%,#56e7e3,#18a9b5 56%,#08738a)!important;
+  color:white!important;
+  font-size:.72rem!important;
+  box-shadow:0 2px 6px rgba(0,0,0,.38),0 0 8px rgba(44,211,210,.22)!important;
+}
+.card .art{
+  grid-row:1!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:visible!important;
+  border:0!important;
+  background:none!important;
+  font-size:1.9rem!important;
+  filter:drop-shadow(0 3px 4px rgba(66,41,12,.18));
+}
+.card>strong{
+  grid-row:2!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:3px 3px 2px!important;
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  overflow:hidden!important;
+  color:#3b260f!important;
+  font:950 .72rem/1.02 Georgia,serif!important;
+  white-space:normal!important;
+  text-overflow:clip!important;
+  text-shadow:0 1px rgba(255,255,255,.45)!important;
+}
+.card>p{
+  grid-row:3!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0 -5px!important;
+  padding:6px 5px 3px!important;
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  overflow:hidden!important;
+  border-top:1px solid rgba(255,231,158,.18)!important;
+  color:#d8edf0!important;
+  background:linear-gradient(180deg,rgba(3,50,72,.46),rgba(1,32,51,.15))!important;
+  font-size:.46rem!important;
+  line-height:1.16!important;
+}
+.card .stats{
+  position:static!important;
+  grid-row:4!important;
+  align-self:end!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:4px!important;
+  color:#ffe59b!important;
+  font-size:.55rem!important;
+  font-weight:1000!important;
+}
+.card .stats b{
+  min-width:0;
+  padding:3px 2px!important;
+  border:1px solid rgba(255,225,133,.16)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.055)!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+.card.disabled{
+  opacity:.5!important;
+  filter:grayscale(.62) brightness(.78)!important;
+}
+.footer-actions{margin-top:7px!important;}
+.end{min-height:43px!important;border-radius:13px!important;font-size:.84rem!important;}
+
+/* ---------- Floating game information ---------- */
+.info-toast{
+  position:relative;
+  z-index:35;
+  height:0;
+  margin:0!important;
+  padding:0!important;
+}
+.info-toast-panel{
+  position:fixed;
+  z-index:70;
+  left:50%;
+  bottom:max(72px,calc(env(safe-area-inset-bottom) + 66px));
+  width:min(calc(100vw - 22px),490px);
+  min-height:52px;
+  padding:8px 9px;
+  display:grid;
+  grid-template-columns:29px minmax(0,1fr) 25px;
+  align-items:center;
+  gap:8px;
+  border:1.5px solid #d7a63e;
+  border-radius:14px;
+  background:linear-gradient(180deg,#fff0b2,#dfbc70);
+  color:#302313;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.8),
+    inset 0 0 0 2px rgba(255,241,188,.3),
+    0 4px 0 #6c4318,
+    0 12px 24px rgba(0,0,0,.34);
+  transform:translate(-50%,0) scale(1);
+  transform-origin:calc(100% - 24px) 100%;
+  opacity:1;
+  visibility:visible;
+  transition:opacity .24s ease,transform .3s cubic-bezier(.2,.85,.25,1),visibility .3s;
+}
+.info-toast-copy{min-width:0;text-align:left;}
+.info-toast-copy small{
+  display:block;
+  margin-bottom:2px;
+  color:#795018;
+  font-size:.48rem;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.11em;
+}
+.info-toast-copy b{
+  display:block;
+  overflow:hidden;
+  color:#2e2415;
+  font:800 .64rem/1.2 Georgia,serif;
+}
+.info-toast-panel .info-badge{
+  width:27px!important;height:27px!important;
+  border:1.5px solid #b67b21!important;
+  background:linear-gradient(180deg,#0a5776,#073b59)!important;
+  color:#ffe89d!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.12)!important;
+}
+.info-toast-close{
+  width:24px;height:24px;
+  display:grid;place-items:center;
+  padding:0;
+  border:1px solid #b67b21;
+  border-radius:50%;
+  background:#fff3c8;
+  color:#6f4814;
+  font-weight:1000;
+  cursor:pointer;
+}
+.info-toast-mini{
+  position:fixed;
+  z-index:71;
+  right:max(12px,calc((100vw - 520px)/2 + 12px));
+  bottom:max(15px,env(safe-area-inset-bottom));
+  width:42px;height:42px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:1.5px solid #ddb048;
+  border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#15769a,#073b59 65%,#03283f);
+  color:#ffe89a;
+  box-shadow:inset 0 0 0 2px rgba(0,18,31,.75),0 5px 0 #6a4214,0 9px 16px rgba(0,0,0,.3);
+  cursor:pointer;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(12px) scale(.55) rotate(12deg);
+  transition:opacity .2s ease,transform .32s cubic-bezier(.18,.9,.25,1.25),visibility .32s;
+}
+.info-toast-mini .mini-icon{
+  width:25px;height:25px;
+  display:grid;place-items:center;
+  border:1px solid rgba(255,232,154,.42);
+  border-radius:50%;
+  font:1000 .85rem/1 Georgia,serif;
+}
+.info-toast-mini .mini-dot{
+  position:absolute;
+  right:1px;top:1px;
+  width:9px;height:9px;
+  border:2px solid #073b59;
+  border-radius:50%;
+  background:#ffd65c;
+  box-shadow:0 0 7px rgba(255,214,92,.58);
+}
+.info-toast.is-minimized .info-toast-panel{
+  opacity:0;
+  visibility:hidden;
+  transform:translate(calc(-50% + 150px),36px) scale(.45);
+  pointer-events:none;
+}
+.info-toast.is-minimized .info-toast-mini{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0) scale(1) rotate(0);
+}
+.info-toast.is-open .info-toast-panel{opacity:1;visibility:visible;pointer-events:auto;}
+.info-toast.is-open .info-toast-mini{opacity:0;visibility:hidden;pointer-events:none;}
+.info-toast.pulse .info-toast-panel{animation:toastPop .34s ease;}
+@keyframes toastPop{0%{transform:translate(-50%,8px) scale(.96)}60%{transform:translate(-50%,-2px) scale(1.01)}100%{transform:translate(-50%,0) scale(1)}}
+
+/* touch phones: readable cards, horizontal hand instead of microscopic cards */
+@media (max-width:700px) and (pointer:coarse){
+  .hand{padding:7px 7px 9px!important;}
+  .cards{
+    display:grid!important;
+    grid-template-columns:none!important;
+    grid-auto-flow:column!important;
+    grid-auto-columns:minmax(116px,31vw)!important;
+    gap:7px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:0 2px 5px!important;
+    scroll-snap-type:x proximity;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .cards::-webkit-scrollbar{display:none;}
+  .card{height:151px!important;scroll-snap-align:start;grid-template-rows:46px 31px minmax(33px,1fr) 21px!important;}
+  .card .art{font-size:1.75rem!important;}
+  .card>strong{font-size:.69rem!important;}
+  .card>p{font-size:.45rem!important;}
+  .info-toast-panel{bottom:max(82px,calc(env(safe-area-inset-bottom) + 76px));width:calc(100vw - 18px);}
+  .info-toast-mini{right:10px;bottom:max(14px,env(safe-area-inset-bottom));}
+}
+
+/* narrow desktop/laptop: keep four cards visible and avoid vertical overflow */
+@media (hover:hover) and (pointer:fine) and (max-height:900px){
+  .hand{padding-top:6px!important;padding-bottom:7px!important;}
+  .card{height:142px!important;grid-template-rows:42px 29px minmax(30px,1fr) 20px!important;}
+  .card .art{font-size:1.62rem!important;}
+  .card>strong{font-size:.67rem!important;}
+  .card>p{padding-top:4px!important;font-size:.43rem!important;}
+  .card .stats{font-size:.51rem!important;}
+  .end{min-height:38px!important;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .info-toast-panel,.info-toast-mini{transition:none!important;animation:none!important;}
+}
