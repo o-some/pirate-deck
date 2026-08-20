@@ -32,11 +32,11 @@
       button.dataset.cardId = card.id;
       button.dataset.cardType = meta.type;
       button.classList.add(`card-accent-${meta.accent}`);
-      button.setAttribute('aria-label', `${card.name}. ${meta.type}. Kosten ${card.cost}. Angriff ${card.atk}. Leben ${card.hp}. Antippen und übersetzen.`);
+      button.setAttribute('aria-label', `${card.name}. ${meta.type}. Wellenkraft-Kosten ${card.cost}. Angriff ${card.atk}. Leben ${card.hp}. Antippen und übersetzen.`);
 
       button.innerHTML = `
         <span class="card-frame-glow" aria-hidden="true"></span>
-        <span class="cost" aria-label="Kosten ${card.cost}">${card.cost}</span>
+        <span class="cost" aria-label="${card.cost} Wellenkraft"><span class="cost-wave" aria-hidden="true">🌊</span><strong class="cost-value">${card.cost}</strong></span>
         <span class="card-type">${meta.type}</span>
         <span class="card-art-shell"><span class="art" aria-hidden="true">${card.emoji}</span></span>
         <strong>${card.name}</strong>
@@ -101,7 +101,6 @@
     }, 850);
   };
 
-  /* Wrong answers discard a card for the whole boss fight. */
   draw = function patchedDraw() {
     const discarded = Array.isArray(state?.discarded) ? state.discarded : [];
     const fieldIds = Array.isArray(state?.field) ? state.field.map(card => card.id) : [];
