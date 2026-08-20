@@ -1,0 +1,290 @@
+/* Pirate Deck — final compact mobile battle pass */
+
+@media (max-width: 600px){
+  /* Keep the real battle compact and readable on iPhone */
+  .app{
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+
+  .game-header{
+    grid-template-columns:40px 1fr 40px !important;
+    gap:6px !important;
+    margin-bottom:4px !important;
+  }
+  .round-action{
+    width:40px !important;
+    height:40px !important;
+    font-size:1.1rem !important;
+  }
+  .title-plaque{
+    min-height:44px !important;
+    padding:5px 12px !important;
+  }
+  .title-plaque strong{font-size:1.02rem !important;}
+  .title-plaque small{font-size:.43rem !important;}
+
+  .battle-hud{
+    grid-template-columns:.9fr .95fr 44px 1fr 1fr !important;
+    border-radius:13px !important;
+    margin-bottom:4px !important;
+  }
+  .hud-stat{
+    min-height:43px !important;
+    padding:4px 2px !important;
+  }
+  .hud-stat small{font-size:.36rem !important;letter-spacing:.06em !important;}
+  .hud-stat b{font-size:.62rem !important;}
+  .turn-medallion{
+    width:48px !important;
+    height:48px !important;
+  }
+  .turn-medallion small{font-size:.36rem !important;}
+  .turn-medallion b{font-size:1.02rem !important;}
+  .health{height:5px !important;margin-top:3px !important;}
+
+  /* Opponent hero area: significantly smaller */
+  .boss-stage{
+    min-height:185px !important;
+    grid-template-columns:48% 52% !important;
+  }
+  .boss-copy{
+    padding:9px 3px 8px 11px !important;
+    justify-content:center !important;
+  }
+  .boss-ribbon{
+    padding:4px 7px !important;
+    font-size:.47rem !important;
+    border-radius:7px 11px 11px 7px !important;
+  }
+  .boss-copy h1{
+    margin:8px 0 4px !important;
+    font-size:1.14rem !important;
+    line-height:.98 !important;
+  }
+  .boss-copy>p{
+    font-size:.57rem !important;
+    line-height:1.18 !important;
+  }
+  .boss-progress{
+    margin-top:7px !important;
+    padding:5px 6px !important;
+    border-radius:10px !important;
+  }
+  .boss-progress>span{font-size:.43rem !important;}
+  .boss-dots{margin-top:4px !important;gap:2px !important;}
+  .boss-dots i{width:6px !important;height:6px !important;}
+  .boss-visual{height:185px !important;}
+  .boss-aura{width:135px !important;height:135px !important;bottom:4px !important;}
+  .boss-img{
+    width:82% !important;
+    height:86% !important;
+    object-fit:contain !important;
+    object-position:center bottom !important;
+  }
+
+  /* Tula CI battlefield */
+  .enemy-field,
+  .player-stage{
+    background:
+      linear-gradient(90deg,rgba(239,199,102,.035),transparent 18%,transparent 82%,rgba(239,199,102,.035)),
+      linear-gradient(180deg,rgba(4,44,69,.90),rgba(1,23,40,.98)) !important;
+  }
+  .field{padding:5px 7px 7px !important;}
+  .wood-banner,.blue-banner{
+    min-width:104px !important;
+    padding:4px 8px !important;
+    border:1px solid #e4bc59 !important;
+    border-radius:8px !important;
+    color:#ffe9a5 !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.12),0 2px 0 #26150c,0 5px 10px rgba(0,0,0,.20) !important;
+    font-size:.5rem !important;
+  }
+  .blue-banner{
+    background:linear-gradient(180deg,#0b7792,#07526f 55%,#043650) !important;
+  }
+  .lanes{gap:5px !important;margin-top:5px !important;}
+  .slot{
+    min-height:49px !important;
+    padding:3px !important;
+    border-radius:11px !important;
+    border:1px solid rgba(239,199,102,.42) !important;
+    background:
+      radial-gradient(circle at 50% 22%,rgba(53,218,217,.10),transparent 45%),
+      linear-gradient(180deg,rgba(7,58,82,.95),rgba(2,31,50,.98)) !important;
+    box-shadow:
+      inset 0 0 0 2px rgba(0,18,31,.78),
+      inset 0 0 0 3px rgba(239,199,102,.055),
+      0 4px 8px rgba(0,0,0,.16) !important;
+  }
+  #enemyLanes .slot:not(.unit){
+    border-color:rgba(239,199,102,.58) !important;
+    background:linear-gradient(180deg,#092b43,#061b2c) !important;
+  }
+  #enemyLanes .slot:not(.unit):before{
+    width:60% !important;
+    height:68% !important;
+    border:1px solid rgba(255,221,123,.72) !important;
+    border-radius:8px !important;
+  }
+
+  .player-stage{
+    grid-template-columns:65px 1fr !important;
+    gap:6px !important;
+    padding:5px 7px 7px !important;
+  }
+  .tula-visual{height:88px !important;}
+  .tula-visual img{width:66px !important;height:86px !important;}
+  .tula-aura{width:68px !important;height:68px !important;}
+  .player-field .slot{
+    min-height:50px !important;
+    border:1.4px solid #42d9dc !important;
+    background:
+      radial-gradient(circle at 50% 20%,rgba(61,224,219,.13),transparent 46%),
+      linear-gradient(180deg,rgba(5,65,86,.97),rgba(2,36,57,.99)) !important;
+    box-shadow:
+      inset 0 0 0 2px rgba(0,20,34,.82),
+      inset 0 0 0 3px rgba(239,199,102,.08),
+      0 0 0 1px rgba(239,199,102,.20),
+      0 4px 10px rgba(0,0,0,.18) !important;
+  }
+  .player-field .slot:not(.unit):after{
+    content:"⚓" !important;
+    opacity:.14 !important;
+    color:#ffe18a !important;
+    font-size:1.05rem !important;
+  }
+  .slot.unit{
+    border:1.4px solid #efc766 !important;
+    background:linear-gradient(180deg,#0b7882,#07506a 58%,#033249) !important;
+    color:#fff2c2 !important;
+  }
+  .slot.unit b{font-size:.56rem !important;}
+  .slot.unit span{font-size:.48rem !important;margin-top:2px !important;}
+  .energy-line{margin-top:4px !important;font-size:.38rem !important;gap:5px !important;}
+  .orb{width:11px !important;height:11px !important;}
+
+  .instruction{
+    min-height:32px !important;
+    margin:4px 0 5px !important;
+    padding:5px 7px !important;
+    grid-template-columns:22px 1fr 18px !important;
+    gap:5px !important;
+    border-radius:9px !important;
+  }
+  .instruction b{font-size:.52rem !important;line-height:1.15 !important;}
+  .info-badge{width:20px !important;height:20px !important;font-size:.68rem !important;}
+  .chest{font-size:.9rem !important;}
+
+  /* Hand as a real mobile card carousel: readable instead of squeezed */
+  .hand{
+    margin-top:0 !important;
+    padding:7px 7px 8px !important;
+    border:1.5px solid rgba(239,199,102,.62) !important;
+    border-radius:17px !important;
+    background:
+      radial-gradient(circle at 50% 0%,rgba(54,211,221,.07),transparent 34%),
+      linear-gradient(180deg,rgba(4,44,68,.96),rgba(1,23,40,.99)) !important;
+    box-shadow:inset 0 0 0 2px rgba(0,17,30,.74),inset 0 0 0 3px rgba(239,199,102,.07),0 8px 18px rgba(0,0,0,.22) !important;
+  }
+  .hand-title{margin:0 1px 5px !important;padding:0 !important;}
+  .hand-title small{font-size:.43rem !important;}
+  .cards{
+    display:grid !important;
+    grid-auto-flow:column !important;
+    grid-auto-columns:112px !important;
+    grid-template-columns:none !important;
+    gap:7px !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    padding:3px 1px 5px !important;
+    scroll-snap-type:x proximity !important;
+    scrollbar-width:none !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+  .cards::-webkit-scrollbar{display:none !important;}
+  .card{
+    scroll-snap-align:start !important;
+    width:112px !important;
+    height:142px !important;
+    min-width:112px !important;
+    padding:7px 4px 20px !important;
+    border-radius:12px !important;
+  }
+  .card .cost{
+    width:25px !important;
+    height:25px !important;
+    top:-4px !important;
+    left:-3px !important;
+    font-size:.65rem !important;
+  }
+  .card .art{
+    height:49px !important;
+    min-height:49px !important;
+    margin:0 -1px 3px !important;
+    font-size:1.65rem !important;
+  }
+  .card>strong,
+  .card strong{
+    min-height:27px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    font-size:.66rem !important;
+    line-height:1.02 !important;
+    padding:0 2px !important;
+  }
+  .card>p,
+  .card p{
+    display:block !important;
+    height:27px !important;
+    min-height:27px !important;
+    margin:2px 1px 0 !important;
+    font-size:.43rem !important;
+    line-height:1.12 !important;
+    overflow:hidden !important;
+  }
+  .card .stats{
+    left:5px !important;
+    right:5px !important;
+    bottom:4px !important;
+    font-size:.5rem !important;
+  }
+  .footer-actions{margin-top:5px !important;}
+  .end{
+    min-height:42px !important;
+    border-radius:12px !important;
+    font-size:.84rem !important;
+  }
+
+  .boss-roster-section{
+    margin-top:8px !important;
+  }
+  .boss-roster-section>summary{
+    min-height:38px !important;
+    padding:8px 10px !important;
+    font-size:.62rem !important;
+  }
+}
+
+@media (max-width: 390px) and (max-height: 760px){
+  .boss-stage{min-height:168px !important;}
+  .boss-visual{height:168px !important;}
+  .boss-img{width:78% !important;height:82% !important;}
+  .boss-copy h1{font-size:1.02rem !important;}
+  .boss-copy>p{font-size:.52rem !important;}
+  .player-stage{grid-template-columns:58px 1fr !important;}
+  .tula-visual{height:78px !important;}
+  .tula-visual img{width:58px !important;height:76px !important;}
+  .slot,.player-field .slot{min-height:46px !important;}
+  .instruction{margin:3px 0 4px !important;}
+  .cards{grid-auto-columns:106px !important;}
+  .card{width:106px !important;min-width:106px !important;height:136px !important;}
+  .card .art{height:46px !important;min-height:46px !important;}
+  .card>strong,.card strong{font-size:.62rem !important;min-height:25px !important;}
+  .card>p,.card p{font-size:.41rem !important;height:25px !important;min-height:25px !important;}
+  .end{min-height:39px !important;font-size:.8rem !important;}
+}
