@@ -62,10 +62,13 @@
   .footer-actions{margin-top:7px;}
   .end{min-height:46px;font-size:.9rem;border-radius:13px;}
 
-  .boss-roster-section{margin-top:14px!important;order:99;}
-  .boss-roster-wrap{margin-top:14px!important;}
-  .boss-roster{gap:8px;}
-  .boss-roster-card{min-width:104px;}
+  .boss-roster-section{margin:16px 2px 0;border:1px solid rgba(239,199,102,.55);border-radius:16px;background:rgba(2,35,57,.88);overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.24)}
+  .boss-roster-section summary{list-style:none;cursor:pointer;padding:12px 14px;color:#f7d875;font-size:.68rem;font-weight:950;letter-spacing:.08em;text-align:center}
+  .boss-roster-section summary::-webkit-details-marker{display:none}
+  .boss-roster-section[open] summary{border-bottom:1px solid rgba(239,199,102,.24)}
+  .boss-roster-hint{margin:8px 12px 0;color:#b9d4d7;font-size:.58rem;line-height:1.35;text-align:center}
+  .boss-roster{display:flex;gap:8px;overflow-x:auto;padding:10px 10px 12px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
+  .boss-roster-card{min-width:104px;scroll-snap-align:center;}
 
   .learn{align-items:flex-end;}
   .sheet{width:100%;max-width:none;border-radius:24px 24px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom));}
