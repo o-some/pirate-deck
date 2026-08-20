@@ -6,24 +6,26 @@ Master assets live in Dropbox:
 
 `/[LinguaTurtle]/[Endbosse]/Tulas_Island_10_Original_Bosse_Einzeln_v2/[Freigestellt]/`
 
-The Pirate Deck runtime uses the following canonical roster:
+The Pirate Deck runtime now uses local optimized copies of all ten canonical sprites:
 
-| Level | Boss | Master file | Runtime status |
+| Level | Boss | Master file | Runtime asset |
 |---:|---|---|---|
-| 1 | Pirat Kai | `Level 1 - Pirat Kai.png` | Stable optimized WebP from `o-some/tulasisland` |
-| 2 | Kapitän Brax | `Level 2 - Kapitän Brax.png` | Dropbox preview runtime source |
-| 3 | Blackfinn | `Level 3 - Blackfinn.png` | Dropbox preview runtime source |
-| 4 | Alt-Kapitän Roderick | `Level 4 - Alt-Kapitän Roderick.png` | Dropbox preview runtime source |
-| 5 | Piratenbaron Vargas | `Level 5 - Piratenbaron Vargas.png` | Dropbox preview runtime source |
-| 6 | Kapitän Ironhook | `Level 6 - Kapitän Ironhook.png` | Dropbox preview runtime source |
-| 7 | Admiral Thorne | `Level 7 - Admiral Thorne.png` | Dropbox preview runtime source |
-| 8 | Kartenmeister Corvin | `Level 8 - Kartenmeister Corvin.png` | Dropbox preview runtime source |
-| 9 | Schattenfürst Azrak | `Level 9 - Schattenfürst Azrak.png` | Dropbox preview runtime source |
-| 10 | Piratenkönig Varkos | `Level 10 - Piratenkönig Varkos.png` | Dropbox preview runtime source |
+| 1 | Pirat Kai | `Level 1 - Pirat Kai.png` | `public/bosses/level-01-pirat-kai.webp` |
+| 2 | Kapitän Brax | `Level 2 - Kapitän Brax.png` | `public/bosses/level-02-kapitaen-brax.webp` |
+| 3 | Blackfinn | `Level 3 - Blackfinn.png` | `public/bosses/level-03-blackfinn.webp` |
+| 4 | Alt-Kapitän Roderick | `Level 4 - Alt-Kapitän Roderick.png` | `public/bosses/level-04-alt-kapitaen-roderick.webp` |
+| 5 | Piratenbaron Vargas | `Level 5 - Piratenbaron Vargas.png` | `public/bosses/level-05-piratenbaron-vargas.webp` |
+| 6 | Kapitän Ironhook | `Level 6 - Kapitän Ironhook.png` | `public/bosses/level-06-kapitaen-ironhook.webp` |
+| 7 | Admiral Thorne | `Level 7 - Admiral Thorne.png` | `public/bosses/level-07-admiral-thorne.webp` |
+| 8 | Kartenmeister Corvin | `Level 8 - Kartenmeister Corvin.png` | `public/bosses/level-08-kartenmeister-corvin.webp` |
+| 9 | Schattenfürst Azrak | `Level 9 - Schattenfürst Azrak.png` | `public/bosses/level-09-schattenfuerst-azrak.webp` |
+| 10 | Piratenkönig Varkos | `Level 10 - Piratenkönig Varkos.png` | `public/bosses/level-10-piratenkoenig-varkos.webp` |
 
-## Production hardening
+## Production status
 
-The current prototype intentionally wires the real Dropbox master previews for levels 2–10 so every original boss is immediately visible and testable in-game. Before final app packaging, mirror levels 2–10 into this repository as optimized WebP assets under `public/assets/bosses/` and replace the preview URLs with local relative paths. Do not redraw or regenerate these characters.
+All ten original boss PNGs were copied from the canonical Dropbox master folder, converted to optimized WebP while preserving transparency, and committed directly to this repository. Boss rendering in `public/pirate-deck.js` uses only local relative `bosses/...` paths. The game no longer depends on Dropbox preview URLs for boss rendering.
+
+Dropbox remains the source of truth for the original high-resolution PNG files. The WebP files in this repository are runtime derivatives for the web/mobile game.
 
 ## Ownership / handling
 
