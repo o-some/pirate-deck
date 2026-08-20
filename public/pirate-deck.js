@@ -13,7 +13,7 @@ const BOSS_ROSTER=[
     hp:24,
     accent:'#ffd06e',
     taunt:'Na los, Inselkröte! Zeig mir deine Wortkraft.',
-    sprite:'https://raw.githubusercontent.com/o-some/tulasisland/main/public/letter-bay/bosses/level-01-pirat-kai.webp'
+    sprite:'bosses/level-01-pirat-kai.webp'
   },
   {
     id:'kapitaen-brax',
@@ -22,7 +22,7 @@ const BOSS_ROSTER=[
     hp:27,
     accent:'#e9b858',
     taunt:'Meine Crew hat schon bessere Wortakrobaten über Bord gehen sehen!',
-    sprite:'https://uc21f703ab39bc01e316e6b37a21.previews.dropboxusercontent.com/p/thumb/ADHISArofPJynnKIJZN7d1_0_q8K_atGDmrgVaQUgEfqtIv8QL8XAyNqamoPVsFNRErJ9TeYf4EBhsVS4x0Qoq3LFdqNmKtqTEK68hCskpniPsZQI31ea9MQlykOI5pF7GFaQjSU4wBYTG5k9STnn60BuMvV6xCQzTni60rImGkeSBEHRrV93JYXlHQ0e0IYOZk9rR5dK8a5e7pV7_ktwpN0v6baxP74yj6kcfQD-SURALB5q2UdzrPnO7jA5ejOphzd1XQ5Blrq05T-lADLSuAfSdTnpX-jv10RbWt43yqdY_I2jBxqsXTESnIpiDZWfjjFMNoNc3_ZJfOixkoHjiZI/p.png'
+    sprite:'bosses/level-02-kapitaen-brax.webp'
   },
   {
     id:'blackfinn',
@@ -31,7 +31,7 @@ const BOSS_ROSTER=[
     hp:30,
     accent:'#ff8e58',
     taunt:'Ein falsches Wort und ich schnappe mir deine Muscheln!',
-    sprite:'https://ucc1bc3c9a90ef6e2ec91558c652.previews.dropboxusercontent.com/p/thumb/ADHXNNNAqfzZ_edxUeV3Bjact23MrNqtUQtzruwTPVDgy9t-cIeya6ozKTRGqYXeqzty7oNg99yvv9svNfKX6MctXzV-tfsvUZu7N2YB0hJ2hXpq-4fa9IHMa0xV7XefkOfkElhl2XnWc1Atbim4_41Au1iHY15_il9yjcl0R6MCCgETRV_yPUYPg9Du1etO3H621Miyl63QHnMyZ126c7hbBOfrPqcoZ44IOqDRt5CYG5R2IFjHaMMtLgJ690Y41hcHgs2b5mMoeUc3qJdoKXZmJj9kmuF0xtYJwx9yEw58_7-kDFnPMMpGmLxPW9ES5BHRRO865pKvzC_Sufgn99Yl/p.png'
+    sprite:'bosses/level-03-blackfinn.webp'
   },
   {
     id:'alt-kapitaen-roderick',
@@ -40,7 +40,7 @@ const BOSS_ROSTER=[
     hp:33,
     accent:'#8fc9ff',
     taunt:'Ich kenne jede Strömung dieser Insel – aber kennst du jedes Wort?',
-    sprite:'https://uc15a90db7c75204724aa6c5359d.previews.dropboxusercontent.com/p/thumb/ADFn9u_8tSAXGcsmNaA5chb-cThIirDzo7N5EPk6MBqIiXwgE5ifNivPMupRZ2N-2khK2zrycyDR7JbiyOFyUG6zTOXT6_fbWk681AJxjYYJLQqUr5ipwx2XCLt053Wt6_oD0WkITNZo0QNEP03sT2pkygUdcEw669lV2vuRBiu-zPAj5F1ojkYvE162ebIplJLUD2skRUbBxxFC6vr9xUT7Ln-XMHrEH8VYiAnrgpAXPO9HRlIVKt52KRqLeji0LPrv4rD-q2YTyB9YuB3pUCbQfoefA6xqSfLfPQdmFoDXoLVjY6zdqjaWXYbGQ3gYRfjR0cwPj4yG9GVRSzZhyC2N/p.png'
+    sprite:'bosses/level-04-alt-kapitaen-roderick.webp'
   },
   {
     id:'piratenbaron-vargas',
@@ -49,7 +49,7 @@ const BOSS_ROSTER=[
     hp:36,
     accent:'#d6995e',
     taunt:'Ich sammle Gold, Siege und die Fehler meiner Gegner.',
-    sprite:'https://ucc20bf702487d33b775a5354a78.previews.dropboxusercontent.com/p/thumb/ADG3lEjrOov_1RaQVlk9TAUziC7NRPyjoDXSSArAlW_d3obBoqJ3MhZdGyIMvfe0iu13TJr2sucjvm1nseQFeIN7_EUXgPmv07cQjT9jlnv4934gDeL7_ZPyCkDKrgxma_0ZYYjtkuKTwnpSKChD_urHsOkcXyyVw33hWZ458XPeDTlEy4IAhjQ52voHZYwAvOMRl-fuUiZylpThYFZN8EFisZHUJDJSnJuTMDnjccY3kKIXGGwz49oOaZtmex2ohkRyXSYIkOBtZm8KG8lMuZtEkkFrzvQt1tMg8hxsXN2JliGIGqIz3B6_TxNwYmofit3QIXyhd8v-QMbX6kaEj94G/p.png'
+    sprite:'bosses/level-05-piratenbaron-vargas.webp'
   },
   {
     id:'kapitaen-ironhook',
@@ -58,7 +58,7 @@ const BOSS_ROSTER=[
     hp:39,
     accent:'#dca65f',
     taunt:'Mein Haken ist alt. Meine Geduld ist älter. Dein Wortschatz besser auch.',
-    sprite:'https://uc2eff97e6e70686051c35bbf43f.previews.dropboxusercontent.com/p/thumb/ADHjT4LbcNDEj5N_Glqetvb16asH1K6XZQe_aMu3RlIoiovXnNv_0rmaEO2oab_Uw-AFKax0CquXYLyLklcJ2qiK7oG7EgQCUnBL3vj2YYk7smt2bQg5CwXUXbpUcFgLQ58RuVNv9KAj_v5kmabb4LK4MPa-jCXxcNO6fWIv4PS4cc2HnpY5WGKCqGj-lojgcWg0JMroTtR9sEFti5lkCRqxNo59Winq79tif1Zyuua1PwJbJnMksoCk_4LYBtrPeexT_zGG44szfxfKk2fmkJZp3rAwsKmyD_pIoOMVEobS4YDI4HrME0VO5h6GOKftG6EuC-w0uDAXvjEYR_bi5r8F/p.png'
+    sprite:'bosses/level-06-kapitaen-ironhook.webp'
   },
   {
     id:'admiral-thorne',
@@ -67,7 +67,7 @@ const BOSS_ROSTER=[
     hp:42,
     accent:'#9d8cff',
     taunt:'Ab hier reicht Glück nicht mehr. Zeig mir, was du gelernt hast.',
-    sprite:'https://uc6aab47346799b1fa775586d672.previews.dropboxusercontent.com/p/thumb/ADF4_3omjKW1KQP90J9VZTW9NXYxFrzoV74E8OycdEZa8_kC3xk-ZDOXgH4ZgyTL2jrMmKUq4ZQ7btLtZNCZAxgXLlTP_h4nSInLF8408RBM4PC53BhMzsiNkGaN0mhjsHONbPhAfqKnLZR8RLkMjTR87hKQHY5TYyCpcGthiabQWUYzxdBtigX_uHCCb68AajW3ljcQZcu3yKDtjI3TCRrRahTxSs8l24vSDSTa6J6GygTXWVgQA0tJbu30-LTDsZdQHiiUySqPCBH31_sZfHjMp8QoQCk-kD9wmIm8lh_fgr-0eV81GMbJopRfE3ZwUE6-DSnXff7RU5xMIhDzmWX6/p.png'
+    sprite:'bosses/level-07-admiral-thorne.webp'
   },
   {
     id:'kartenmeister-corvin',
@@ -76,7 +76,7 @@ const BOSS_ROSTER=[
     hp:45,
     accent:'#69cbd1',
     taunt:'Jede Karte zeigt einen Weg. Mal sehen, ob du den richtigen findest.',
-    sprite:'https://uc180ab07e1240065d7563ddbb95.previews.dropboxusercontent.com/p/thumb/ADFJ1GQSaGVp622fTaviDKeW_HX5HcEFUKRSTNOQTMXBeddD9C0iohhH1VCSSzBN2KgqcEktgqrXZON_bdOQaMCGEvz0k0mwdPjZUOx0syiH49qqf-KaWsp69PM4lV_HteLN_sDNrlEvIeREc3Hit6XwyvsaEp8M3RY5aPEo5ZazBvaliZUfGZ6iWzuF2jjwxprwNIamrsShKQ0aslbO2aAo72sWc2YCaOQnUvoe8hVo6vKA-H5Bn-BOGS9dMQ9r_5522D4Y5pTVlR6X2hpbkrOqlEzhkLcAVeQCCYOiLiafEAM2vZ0e1KQyta6qgb2vbWFFBWCNbg-hJElqWOAwBNWH/p.png'
+    sprite:'bosses/level-08-kartenmeister-corvin.webp'
   },
   {
     id:'schattenfuerst-azrak',
@@ -85,7 +85,7 @@ const BOSS_ROSTER=[
     hp:48,
     accent:'#b66dff',
     taunt:'Deine Problemwörter kehren im Schatten zurück.',
-    sprite:'https://uced72d90bf1317bc73f883bc77e.previews.dropboxusercontent.com/p/thumb/ADHoIzPDg5psw-CmSdm3zcIQqtRX5_d-qH2EakPtiGFHAbPJa8-Q6PNWqIgBRodfvCCi2Wi4DxFh44QN0XTxFDHgXTJNGSbSY2nEhz-ViWDQgnjUQHtgT0tN6bPs_KGYT-p_RLTI4b_GkJmVzeWcCyHDYooKvVeg3RASgkjriIfp7JGIZi-BOjSBjoIe4jGZrhARjpfjrFB17XoSvPo_bfFSnTAGIak6uwiEbIcM45af-RmakyZXEx0mONgz5TqYJeAxz8QUrwI4r8tdxGPEcH0R5DNpfXqDSYEF6hoXA2WBKiHW_Pt1BaFXx6NcdDJcMtc_iGzw2RnNR3X9MIzHiYoM/p.png'
+    sprite:'bosses/level-09-schattenfuerst-azrak.webp'
   },
   {
     id:'piratenkoenig-varkos',
@@ -94,7 +94,7 @@ const BOSS_ROSTER=[
     hp:52,
     accent:'#ff6860',
     taunt:'Wer mich besiegt, beherrscht die Wortmeere von Tula’s Island.',
-    sprite:'https://uc6d4dff5fae6b49263dfc3b7d31.previews.dropboxusercontent.com/p/thumb/ADGeqFcpi4_5hDMr6jTSayFMGEviufkqK2mLES14UoD-69io4Q19WzfPU23fOYoSAfqlTAj9yOT0jNZ9Y9oIXxNl71VnzJGa0P7KP9kHNkchLRhUOF5r9eiFrvtbKsC7MGdn8ehUJaOhQxYayLByS6YHI_mJGMN-VXoGtZGwnLo409NHqgr6Y7_ViQueRWqww7IHQckv21i_BNmpmujKj_JX1H-UkVPK_uBbmDgqura_nmah5ZsT6ne4hLvXoekj8dwgx-NFVhHs55OYhnBjWRSWErbRtjOWGq3ORa21i60qN2NG5rDGCXE6EY-yK_5Mq8Ecjf8TzoDklu6RDqnsReYp/p.png'
+    sprite:'bosses/level-10-piratenkoenig-varkos.webp'
   }
 ];
 
