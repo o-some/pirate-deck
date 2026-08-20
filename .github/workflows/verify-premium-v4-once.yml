@@ -1,0 +1,36 @@
+name: Verify Pirate Deck Premium V4 once
+
+on:
+  push:
+    branches:
+      - feat/premium-board-v4-20260820
+    paths:
+      - '.github/workflows/verify-premium-v4-once.yml'
+      - 'public/pirate-deck-board-v4.css'
+      - 'public/pirate-deck-guide-v1.css'
+      - 'public/pirate-deck-guide-v1.js'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify JavaScript
+        run: |
+          node --check public/pirate-deck-guide-v1.js
+          node --check public/pirate-deck-card-rules-v2.js
+          node --check public/pirate-deck.js
+      - name: Build Astro
+        run: |
+          npm install
+          npm run build
+      - name: Verify premium output
+        run: |
+          test -s dist/pirate-deck-board-v4.css
+          grep -q "pirate-deck-board-v4.css" dist/pirate-deck-guide-v1.css
+          grep -q "DEFAULT_HAND_LIMIT = 4" dist/pirate-deck-guide-v1.js
+          grep -q "PirateDeckHand" dist/pirate-deck-guide-v1.js
+          grep -q "gameGuide" dist/index.html
