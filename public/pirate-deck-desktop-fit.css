@@ -1,0 +1,230 @@
+/* Pirate Deck — desktop/tablet fit-to-viewport pass
+   Goal: full playable battle visible without page scrolling on laptop/desktop,
+   including narrow desktop browser windows around 600–900px. */
+
+@media (min-width: 601px){
+  html,body{
+    width:100%;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+    background:#011521;
+  }
+
+  body{height:100dvh;}
+
+  .app{
+    width:min(100%,920px) !important;
+    height:100dvh !important;
+    min-height:0 !important;
+    margin:0 auto !important;
+    padding:6px 10px 7px !important;
+    overflow:hidden !important;
+    display:block !important;
+  }
+
+  /* Header: keep identity, lose unused vertical space. */
+  .game-header{
+    height:52px !important;
+    min-height:52px !important;
+    grid-template-columns:44px 1fr 44px !important;
+    gap:8px !important;
+    margin:0 0 5px !important;
+  }
+  .round-action{width:42px !important;height:42px !important;font-size:1.2rem !important;}
+  .title-plaque{min-height:48px !important;height:48px !important;padding:5px 18px 4px !important;border-radius:14px !important;}
+  .title-plaque strong{font-size:1.28rem !important;}
+  .title-plaque small{font-size:.46rem !important;margin-top:1px !important;}
+  .title-plaque .wheel{top:-10px !important;font-size:1rem !important;}
+
+  /* HUD */
+  .battle-hud{
+    height:52px !important;
+    min-height:52px !important;
+    margin:0 0 5px !important;
+    border-radius:14px !important;
+    grid-template-columns:1fr 1fr 54px 1fr 1fr !important;
+  }
+  .hud-stat{min-height:50px !important;padding:4px 5px !important;}
+  .hud-stat small{font-size:.42rem !important;}
+  .hud-stat b{font-size:.7rem !important;margin-top:2px !important;}
+  .turn-medallion{width:54px !important;height:54px !important;margin:-2px !important;}
+  .turn-medallion b{font-size:1.18rem !important;}
+  .health{height:6px !important;margin-top:3px !important;}
+
+  /* Main board gets a strict viewport budget. */
+  .battle-board{
+    height:clamp(350px,47.5vh,455px) !important;
+    min-height:0 !important;
+    display:grid !important;
+    grid-template-rows:minmax(170px,1.9fr) minmax(82px,.82fr) minmax(108px,1.08fr) !important;
+    overflow:hidden !important;
+    border-radius:22px !important;
+  }
+
+  /* Boss becomes presentation, not half the screen. */
+  .boss-stage{
+    min-height:0 !important;
+    height:100% !important;
+    grid-template-columns:48% 52% !important;
+    overflow:hidden !important;
+  }
+  .boss-copy{padding:10px 4px 9px 14px !important;justify-content:center !important;}
+  .boss-ribbon{padding:5px 9px !important;font-size:.54rem !important;}
+  .boss-copy h1{margin:8px 0 4px !important;font-size:clamp(1.24rem,3vw,1.6rem) !important;line-height:.95 !important;}
+  .boss-copy>p{font-size:.62rem !important;line-height:1.2 !important;max-width:30ch !important;}
+  .boss-progress{width:min(100%,220px) !important;margin-top:8px !important;padding:5px 8px !important;border-radius:11px !important;}
+  .boss-progress>span{font-size:.47rem !important;}
+  .boss-dots{margin-top:4px !important;gap:3px !important;}
+  .boss-dots i{width:7px !important;height:7px !important;}
+  .boss-visual{height:100% !important;min-height:0 !important;}
+  .boss-aura{width:150px !important;height:150px !important;bottom:2px !important;}
+  .boss-img{width:94% !important;height:98% !important;object-fit:contain !important;object-position:center bottom !important;}
+
+  /* Enemy crew: compact card-back row. */
+  .enemy-field{min-height:0 !important;padding:5px 10px 7px !important;overflow:hidden !important;}
+  .wood-banner,.blue-banner{min-width:118px !important;padding:4px 9px !important;font-size:.56rem !important;border-radius:8px !important;}
+  .lanes{gap:8px !important;margin-top:6px !important;}
+  .enemy-field .slot{min-height:58px !important;height:58px !important;border-radius:12px !important;padding:3px !important;}
+  #enemyLanes .slot:not(.unit):before{width:62% !important;height:72% !important;border-radius:8px !important;}
+
+  /* Player area: stronger Tula CI, balanced figure/slots. */
+  .player-stage{
+    min-height:0 !important;
+    height:100% !important;
+    grid-template-columns:88px 1fr !important;
+    gap:8px !important;
+    padding:5px 9px 7px !important;
+    align-items:center !important;
+    overflow:hidden !important;
+    background:
+      radial-gradient(circle at 15% 55%,rgba(54,225,213,.10),transparent 24%),
+      linear-gradient(180deg,rgba(4,48,72,.92),rgba(1,23,41,.98)) !important;
+  }
+  .tula-visual{height:100px !important;min-height:0 !important;align-self:center !important;}
+  .tula-visual img{width:82px !important;height:98px !important;}
+  .tula-aura{width:76px !important;height:76px !important;bottom:4px !important;}
+  .player-field{align-self:center !important;}
+  .blue-banner{margin:0 auto 5px !important;}
+  .player-field .lanes{margin-top:0 !important;}
+  .player-field .slot{
+    min-height:60px !important;
+    height:60px !important;
+    border-radius:12px !important;
+    border:1.5px solid #39d7dc !important;
+    box-shadow:inset 0 0 0 2px rgba(0,20,35,.78),0 0 0 1px rgba(239,199,102,.2),0 5px 12px rgba(0,0,0,.2) !important;
+  }
+  .player-field .slot:not(.unit):after{font-size:1.15rem !important;opacity:.14 !important;}
+  .slot.unit b{font-size:.62rem !important;}
+  .slot.unit span{font-size:.54rem !important;margin-top:3px !important;}
+  .energy-line{margin-top:4px !important;font-size:.42rem !important;gap:5px !important;}
+  .orb{width:12px !important;height:12px !important;}
+
+  /* Feedback line */
+  .instruction{
+    min-height:36px !important;
+    height:36px !important;
+    margin:5px 1px 6px !important;
+    padding:4px 8px !important;
+    grid-template-columns:24px 1fr 22px !important;
+    gap:6px !important;
+    border-radius:10px !important;
+  }
+  .instruction b{font-size:.58rem !important;line-height:1.12 !important;}
+  .info-badge{width:21px !important;height:21px !important;font-size:.7rem !important;}
+  .chest{font-size:.9rem !important;}
+
+  /* Hand is a real game tray: four readable cards + action, all visible. */
+  .hand{
+    height:clamp(176px,23vh,218px) !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:6px 8px 7px !important;
+    display:grid !important;
+    grid-template-rows:16px minmax(118px,1fr) 42px !important;
+    gap:5px !important;
+    border:1.5px solid rgba(239,199,102,.64) !important;
+    border-radius:16px !important;
+    background:linear-gradient(180deg,rgba(4,44,68,.96),rgba(1,22,39,.99)) !important;
+    box-shadow:inset 0 0 0 2px rgba(0,16,29,.74),0 8px 18px rgba(0,0,0,.22) !important;
+  }
+  .hand-title{height:16px !important;margin:0 !important;padding:0 2px !important;border:0 !important;}
+  .hand-title small{font-size:.46rem !important;line-height:16px !important;}
+  .cards{
+    height:100% !important;
+    min-height:0 !important;
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    grid-auto-flow:row !important;
+    grid-auto-columns:auto !important;
+    gap:7px !important;
+    overflow:hidden !important;
+    padding:0 !important;
+  }
+  .card{
+    width:100% !important;
+    min-width:0 !important;
+    height:100% !important;
+    min-height:118px !important;
+    padding:5px 4px 20px !important;
+    border-radius:11px !important;
+  }
+  .card .cost{width:25px !important;height:25px !important;font-size:.66rem !important;top:-3px !important;left:-3px !important;}
+  .card .art{height:43% !important;min-height:43px !important;margin:0 -1px 3px !important;font-size:1.65rem !important;}
+  .card strong{
+    min-height:22px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    white-space:normal !important;
+    overflow:hidden !important;
+    font-size:clamp(.62rem,1.6vw,.78rem) !important;
+    line-height:1.02 !important;
+  }
+  .card p{height:26px !important;min-height:0 !important;margin:2px 1px 0 !important;font-size:.46rem !important;line-height:1.12 !important;}
+  .card .stats{left:5px !important;right:5px !important;bottom:4px !important;font-size:.53rem !important;}
+  .footer-actions{height:42px !important;margin:0 !important;}
+  .end{height:42px !important;min-height:42px !important;border-radius:11px !important;font-size:.82rem !important;}
+
+  /* Route is test/debug navigation, not part of the active desktop battle. */
+  .boss-roster-section{display:none !important;}
+}
+
+/* Narrow PC windows like the supplied screenshot. */
+@media (min-width:601px) and (max-width:760px){
+  .app{padding-left:7px !important;padding-right:7px !important;}
+  .battle-board{height:clamp(346px,46.5vh,440px) !important;}
+  .boss-stage{grid-template-columns:49% 51% !important;}
+  .boss-copy h1{font-size:1.28rem !important;}
+  .boss-img{width:92% !important;}
+  .player-stage{grid-template-columns:78px 1fr !important;}
+  .tula-visual img{width:72px !important;height:90px !important;}
+  .hand{height:clamp(174px,22.5vh,208px) !important;}
+  .card p{font-size:.43rem !important;}
+}
+
+/* Short laptop/browser viewport: squeeze decoration before text. */
+@media (min-width:601px) and (max-height:820px){
+  .game-header{height:46px !important;min-height:46px !important;margin-bottom:3px !important;}
+  .title-plaque{height:43px !important;min-height:43px !important;}
+  .round-action{width:38px !important;height:38px !important;}
+  .battle-hud{height:46px !important;min-height:46px !important;margin-bottom:3px !important;}
+  .hud-stat{min-height:44px !important;}
+  .turn-medallion{width:48px !important;height:48px !important;}
+  .battle-board{height:clamp(310px,46vh,377px) !important;grid-template-rows:minmax(148px,1.75fr) 72px 96px !important;}
+  .boss-copy h1{margin-top:5px !important;font-size:1.16rem !important;}
+  .boss-copy>p{font-size:.57rem !important;}
+  .boss-progress{margin-top:5px !important;}
+  .enemy-field .slot{height:50px !important;min-height:50px !important;}
+  .player-stage{grid-template-columns:72px 1fr !important;padding-top:3px !important;padding-bottom:4px !important;}
+  .tula-visual{height:82px !important;}.tula-visual img{height:82px !important;width:68px !important;}
+  .player-field .slot{height:50px !important;min-height:50px !important;}
+  .instruction{height:32px !important;min-height:32px !important;margin:3px 1px 4px !important;}
+  .hand{height:clamp(158px,22vh,178px) !important;grid-template-rows:14px minmax(104px,1fr) 37px !important;padding:4px 6px 5px !important;gap:3px !important;}
+  .hand-title{height:14px !important;}.hand-title small{line-height:14px !important;}
+  .card{min-height:104px !important;}
+  .card .art{min-height:36px !important;font-size:1.45rem !important;}
+  .card strong{min-height:18px !important;font-size:.61rem !important;}
+  .card p{height:21px !important;font-size:.4rem !important;}
+  .footer-actions,.end{height:37px !important;min-height:37px !important;}
+}
