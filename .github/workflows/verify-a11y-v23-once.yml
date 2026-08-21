@@ -1,0 +1,157 @@
+name: Verify Accessibility V23 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-a11y-v23-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout baseline
+        uses: actions/checkout@v4
+        with:
+          ref: d3e66b6f789c6d8775c408ab2a702c2f2bda8218
+          path: baseline
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          ref: feat/a11y-v23-20260821
+          path: candidate
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify source scope and build
+        run: |
+          set -euo pipefail
+          cmp baseline/public/pirate-deck.js candidate/public/pirate-deck.js
+          cmp baseline/public/pirate-deck-card-rules-v2.js candidate/public/pirate-deck-card-rules-v2.js
+          cmp baseline/public/pirate-deck-monster-cards-v1.js candidate/public/pirate-deck-monster-cards-v1.js
+          node --check candidate/public/pirate-deck-a11y-v23.js
+          node --check candidate/scripts/build-ui-runtime.mjs
+          node --check candidate/scripts/verify-runtime-sources.mjs
+          cd candidate
+          npm install
+          npm run build
+          node --check dist/pirate-deck-ui-runtime-v18.js
+          grep -q 'pirate-deck-a11y-v23.js' dist/pirate-deck-ui-runtime-v18.js
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+
+      - name: Install browser QA
+        run: |
+          mkdir qa && cd qa
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify keyboard and modal focus behavior
+        run: |
+          set -euo pipefail
+          mkdir -p .serve/pirate-deck
+          cp -a candidate/dist/. .serve/pirate-deck/
+          python3 -m http.server 4173 --directory .serve >/tmp/pd-a11y-v23.log 2>&1 & SERVER=$!
+          trap 'kill $SERVER || true' EXIT
+          sleep 2
+          node <<'NODE'
+          const { chromium } = require('./qa/node_modules/playwright');
+
+          (async()=>{
+            const browser = await chromium.launch({ headless:true });
+            const page = await browser.newPage({ viewport:{ width:1360, height:856 } });
+            const errors=[];
+            page.on('pageerror', e => errors.push(`pageerror:${e.message}`));
+            page.on('console', m => { if (m.type()==='error') errors.push(`console:${m.text()}`); });
+
+            await page.addInitScript(() => localStorage.setItem('pirateDeckGuideSeen','1'));
+            await page.goto('http://127.0.0.1:4173/pirate-deck/', { waitUntil:'networkidle' });
+            await page.click('#start');
+            await page.waitForTimeout(350);
+
+            const cards = page.locator('#cards button.monster-card');
+            if (await cards.count() !== 7) throw new Error('Expected seven native monster buttons');
+
+            const first = page.locator('#cards button.monster-card:not([disabled])').first();
+            if (await first.evaluate(el => el.tagName) !== 'BUTTON') throw new Error('Monster card is not a native button');
+            if (await first.getAttribute('aria-disabled') !== 'false') throw new Error('Enabled card aria-disabled is not false');
+
+            await first.focus();
+            await page.keyboard.press('Enter');
+            await page.waitForFunction(() => document.querySelector('#learn')?.classList.contains('open'));
+            await page.waitForTimeout(80);
+
+            if (await page.locator('#learn').getAttribute('aria-hidden') !== 'false') throw new Error('Open dialog aria-hidden not false');
+            if (!(await page.evaluate(() => document.activeElement?.classList.contains('answer')))) throw new Error('First answer did not receive focus');
+
+            await page.keyboard.press('Escape');
+            if (!(await page.locator('#learn').evaluate(el => el.classList.contains('open')))) throw new Error('Escape bypassed language question');
+
+            const answers = page.locator('#learn button.answer:not([disabled])');
+            if (await answers.count() < 2) throw new Error('Expected multiple answer buttons');
+            await answers.first().focus();
+            await page.keyboard.press('Shift+Tab');
+            if (!(await page.evaluate(() => document.activeElement === [...document.querySelectorAll('#learn button.answer:not([disabled])')].at(-1)))) throw new Error('Shift+Tab did not wrap inside dialog');
+            await page.keyboard.press('Tab');
+            if (!(await page.evaluate(() => document.activeElement === document.querySelector('#learn button.answer:not([disabled])')))) throw new Error('Tab did not wrap inside dialog');
+
+            await page.keyboard.press('Enter');
+            await page.waitForFunction(() => !document.querySelector('#learn')?.classList.contains('open'), null, { timeout:2500 });
+            await page.waitForTimeout(100);
+            if (await page.locator('#learn').getAttribute('aria-hidden') !== 'true') throw new Error('Closed dialog aria-hidden not true');
+            const focusAfter = await page.evaluate(() => ({ id:document.activeElement?.id, monster:document.activeElement?.dataset?.monster || null }));
+            if (focusAfter.id !== 'endTurn' && !focusAfter.monster) throw new Error(`Unexpected focus restoration: ${JSON.stringify(focusAfter)}`);
+
+            const disabled = page.locator('#cards button.monster-card[disabled]').first();
+            if (await disabled.count()) {
+              if (await disabled.getAttribute('aria-disabled') !== 'true') throw new Error('Disabled card aria-disabled is not true');
+            }
+
+            const second = page.locator('#cards button.monster-card:not([disabled])').first();
+            if (await second.count()) {
+              await second.focus();
+              await page.keyboard.press('Space');
+              await page.waitForFunction(() => document.querySelector('#learn')?.classList.contains('open'));
+              await page.waitForTimeout(80);
+              if (await page.locator('#learn button.answer').count() !== 3) throw new Error('Space activation opened an invalid/double question state');
+              if (!(await page.evaluate(() => document.activeElement?.classList.contains('answer')))) throw new Error('Space activation did not focus first answer');
+            }
+
+            if (errors.length) throw new Error(errors.join(' | '));
+            await browser.close();
+            console.log('Accessibility V23 keyboard browser QA PASS');
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+
+      - name: Record verification on feature
+        working-directory: candidate
+        run: |
+          cat > docs/A11Y_V23_VERIFIED.md <<'EOF'
+          # Accessibility V23 verification
+
+          - Core gameplay/card/monster JavaScript unchanged: PASS
+          - A11y source syntax: PASS
+          - Runtime source/style/asset guards: PASS via production build
+          - Astro production build: PASS
+          - Seven monster cards remain native buttons: PASS
+          - Enter activates a playable card exactly through native button behavior: PASS
+          - First language answer receives focus: PASS
+          - Escape cannot bypass the language question: PASS
+          - Tab and Shift+Tab remain inside the open language dialog: PASS
+          - Dialog aria-hidden state tracks open/closed state: PASS
+          - Focus restoration after resolving a question: PASS
+          - Disabled cards expose aria-disabled=true: PASS
+          - Space activates a playable card without duplicate question state: PASS
+          - Browser/page console errors during keyboard QA: NONE
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/A11Y_V23_VERIFIED.md
+          git commit -m 'Record Accessibility V23 verification'
+          git push origin HEAD:feat/a11y-v23-20260821
