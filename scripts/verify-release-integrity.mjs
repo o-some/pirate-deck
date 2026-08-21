@@ -29,6 +29,7 @@ const requiredFiles = [
   'scripts/verify-runtime-sources.mjs',
   'scripts/verify-style-sources.mjs',
   'scripts/verify-asset-integrity.mjs',
+  'scripts/verify-pages-deploy.mjs',
   'docs/RUNTIME_SOURCE_GUARD_V20_VERIFIED.md',
   'docs/RUNTIME_SOURCE_GUARD_V20_PAGES_VERIFIED.md',
   'docs/STYLE_SOURCE_GUARD_V21_VERIFIED.md',
@@ -57,11 +58,13 @@ for (const scriptName of [
   'verify:styles',
   'verify:assets',
   'verify:release',
+  'verify:pages',
   'verify:runtime',
   'build'
 ]) {
   pass(typeof scripts[scriptName] === 'string' && scripts[scriptName].length > 0, `package script ${scriptName} is missing`);
 }
+pass(scripts['verify:pages'].includes('verify-pages-deploy.mjs'), 'verify:pages must run the Pages smoke verifier');
 pass(scripts['verify:runtime'].includes('verify:release'), 'verify:runtime must include verify:release');
 pass(scripts.build.includes('prepare:runtime'), 'build must prepare generated runtime assets');
 pass(scripts.build.includes('verify:runtime'), 'build must run runtime verification');
@@ -134,7 +137,10 @@ for (const expected of [
   'npm run build',
   'actions/upload-pages-artifact@v3',
   'actions/deploy-pages@v4',
-  'path: ./dist'
+  'path: ./dist',
+  'name: Verify live Pages deployment',
+  'needs: deploy',
+  'npm run verify:pages -- https://o-some.github.io/pirate-deck/'
 ]) {
   pass(deployWorkflow.includes(expected), `deploy.yml lost required release step: ${expected}`);
 }
