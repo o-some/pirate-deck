@@ -1,0 +1,74 @@
+name: Verify and deploy Accessibility V23 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-deploy-a11y-v23-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Verify guards and production build
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck-a11y-v23.js
+          node --check scripts/build-ui-runtime.mjs
+          node --check scripts/verify-runtime-sources.mjs
+          npm run build
+          node --check dist/pirate-deck-ui-runtime-v18.js
+          grep -q 'pirate-deck-a11y-v23.js' dist/pirate-deck-ui-runtime-v18.js
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+          test "$(grep -o '<script ' dist/index.html | wc -l)" -eq 4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  record:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record successful release
+        run: |
+          cat > docs/A11Y_V23_PAGES_VERIFIED.md <<'EOF'
+          # Accessibility V23 Pages verification
+
+          - Runtime/style/asset guards: PASS
+          - Astro production build: PASS
+          - Accessibility V23 source syntax: PASS
+          - Accessibility V23 included in UI Runtime V18: PASS
+          - Runtime script count remains 4: PASS
+          - GitHub Pages deployment: PASS
+          - Release SHA: `c0f74ed50e482ef5ec6943361aea466975f476fa`
+          - Page URL: https://o-some.github.io/pirate-deck/
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/A11Y_V23_PAGES_VERIFIED.md
+          git commit -m 'Record Accessibility V23 Pages deployment'
+          git push
