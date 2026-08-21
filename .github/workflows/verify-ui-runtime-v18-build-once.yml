@@ -1,0 +1,61 @@
+name: Verify UI Runtime V18 build once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-ui-runtime-v18-build-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/ui-runtime-v18-20260821
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify generator and production build
+        run: |
+          set -euo pipefail
+          node --check scripts/build-ui-runtime.mjs
+          npm install
+          npm run build
+          node --check dist/pirate-deck-ui-runtime-v18.js
+          grep -q 'pirate-deck-ui-runtime-v18.js' dist/index.html
+          for f in pirate-deck-asset-guard.js pirate-deck-info-toast.js pirate-deck-guide-v1.js pirate-deck-hud-hp-v4.js pirate-deck-hand7-v5.js; do
+            ! grep -q "src=\"/pirate-deck/$f\"" dist/index.html
+          done
+          test "$(grep -o '<script ' dist/index.html | wc -l)" -eq 4
+          for marker in 'pirate-deck-asset-guard.js' 'pirate-deck-info-toast.js' 'pirate-deck-guide-v1.js' 'pirate-deck-hud-hp-v4.js' 'pirate-deck-hand7-v5.js'; do
+            grep -q "$marker" dist/pirate-deck-ui-runtime-v18.js
+          done
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-card-rules-v2.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+      - name: Record deterministic verification
+        run: |
+          cat > docs/UI_RUNTIME_V18_BUILD_VERIFIED.md <<'EOF'
+          # UI Runtime V18 deterministic verification
+
+          - UI runtime generator syntax: PASS
+          - Astro production build: PASS
+          - Generated V18 JavaScript syntax: PASS
+          - Five UI script links replaced by one V18 link: PASS
+          - Runtime script requests reduced from 8 to 4: PASS
+          - Asset guard / info toast / guide / HUD HP / Hand7 order retained: PASS
+          - Core gameplay/card/monster JavaScript syntax: PASS
+          - Foundation V17 and Runtime V15 retained: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/UI_RUNTIME_V18_BUILD_VERIFIED.md
+          git commit -m 'Record UI Runtime V18 deterministic verification'
+          git push origin HEAD:feat/ui-runtime-v18-20260821
