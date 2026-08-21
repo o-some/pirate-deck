@@ -1,0 +1,71 @@
+name: Verify and deploy Top HUD V9 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-deploy-top-hud-v9-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: top-hud-v9-release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build and verify V9
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-hud-hp-v4.js
+          npm install
+          npm run build
+          test -s dist/pirate-deck-top-hud-v9.css
+          grep -q 'pirate-deck-top-hud-v9.css' dist/index.html
+          grep -q 'grid-template-areas:"boss shells turn energy level"' dist/pirate-deck-top-hud-v9.css
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified V9 build
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - name: Record successful deployment
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          cat > docs/TOP_HUD_V9_PAGES_VERIFIED.md <<EOF
+          # Top HUD V9 Pages verification
+
+          - Astro production build: PASS
+          - V9 HUD CSS in build: PASS
+          - Boss-left / level-right hierarchy in build: PASS
+          - GitHub Pages deployment: PASS
+          - Release SHA: \`$RELEASE_SHA\`
+          - Page URL: $PAGE_URL
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/TOP_HUD_V9_PAGES_VERIFIED.md
+          git commit -m 'Record successful Top HUD V9 Pages deployment'
+          git push
