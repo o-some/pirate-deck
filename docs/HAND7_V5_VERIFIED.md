@@ -12,3 +12,4 @@
 - Card art uses contain / centered positioning: PASS
 - Name, effect and combat stats have dedicated rows: PASS
 - Disabled cards remain readable: PASS
+- Release target: main / GitHub Pages
