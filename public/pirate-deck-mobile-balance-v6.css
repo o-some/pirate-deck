@@ -1,0 +1,531 @@
+/* Pirate Deck — Mobile / Viewport Balance V6
+   Visual-only release layer. No gameplay/state changes.
+   Uses phi-inspired card proportions and dynamic viewport units. */
+
+:root{
+  --pd-phi:1.618;
+  --pd-card-ratio:.618;
+}
+
+/* Asset safety: no important character art may be cropped. */
+.monster-art-img,
+.unit-monster-img,
+.boss-side-visual .boss-img,
+.tula-visual > img,
+.boss-roster-art img,
+.intro-hero img{
+  object-fit:contain!important;
+  object-position:center!important;
+}
+
+.monster-art-frame,
+.boss-roster-art,
+.tula-visual,
+.boss-side-visual{
+  place-items:center!important;
+}
+
+.boss-side-visual .boss-aura,
+.tula-visual .tula-aura{
+  left:50%!important;
+  transform:translateX(-50%)!important;
+}
+
+/* Keep circular / medallion controls visually centered. */
+.round-action,
+.turn-medallion,
+.orb,
+.info-toast-mini .mini-icon{
+  display:grid!important;
+  place-items:center!important;
+}
+
+/* The active play surface should visually own the viewport. */
+.app{
+  min-height:100svh!important;
+  box-sizing:border-box;
+}
+
+.battle-board,
+.hand{
+  flex-shrink:0;
+}
+
+.boss-roster-section{
+  margin-top:clamp(12px,2vh,20px)!important;
+}
+
+/* Player/enemy cards on the board: consistent geometry and readable values. */
+.player-field .slot,
+.enemy-stage .slot{
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+
+.unit-card-inner{
+  width:100%;
+  min-width:0;
+  display:grid!important;
+  grid-template-columns:clamp(42px,4.4vw,58px) minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:7px!important;
+}
+
+.unit-monster-img{
+  width:clamp(42px,4.4vw,58px)!important;
+  height:clamp(42px,4.4vw,58px)!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:auto!important;
+}
+
+.unit-card-copy{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+
+.unit-card-copy b,
+.unit-card-copy small,
+.unit-card-copy span{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Hand: phi-inspired portrait cards and no hidden bottom rows. */
+.monster-card{
+  aspect-ratio:var(--pd-card-ratio) / 1!important;
+  box-sizing:border-box!important;
+}
+
+.monster-cost{
+  box-sizing:border-box!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+.monster-name,
+.monster-effect,
+.monster-stats{
+  box-sizing:border-box!important;
+}
+
+.monster-stats b{
+  overflow:hidden!important;
+}
+
+.monster-stats b > strong{
+  font-variant-numeric:tabular-nums;
+}
+
+/* Wider screens: restrained vertical expansion, preserve all seven cards. */
+@media (min-width:701px){
+  .battle-board{
+    margin-bottom:8px!important;
+  }
+
+  .hand{
+    min-height:clamp(308px,35vh,370px)!important;
+    padding-bottom:12px!important;
+  }
+
+  .monster-card{
+    min-height:clamp(242px,29vh,286px)!important;
+    max-height:286px!important;
+  }
+
+  .monster-art-frame{
+    min-height:94px!important;
+  }
+
+  .monster-art-img{
+    max-height:118px!important;
+  }
+}
+
+/* Mobile / iPhone: use spare vertical room for the cards instead of dead space. */
+@media (max-width:700px){
+  html,
+  body{
+    min-height:100svh!important;
+  }
+
+  body{
+    padding-bottom:env(safe-area-inset-bottom,0px)!important;
+  }
+
+  .app{
+    min-height:100svh!important;
+    padding-bottom:max(10px,env(safe-area-inset-bottom,0px))!important;
+  }
+
+  /* HUD remains concise, but text gets enough breathing room. */
+  .battle-hud{
+    min-height:58px!important;
+  }
+
+  .battle-hud .hud-stat,
+  .battle-hud .hud-boss-meta{
+    min-width:0!important;
+    padding-left:4px!important;
+    padding-right:4px!important;
+  }
+
+  .battle-hud .hud-stat small,
+  .battle-hud .hud-boss-meta small{
+    line-height:1.05!important;
+  }
+
+  /* Boss name + level already live in the top HUD. Keep only a slim battle/taunt strip below. */
+  .boss-info-strip{
+    min-height:34px!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    gap:7px!important;
+    padding:5px 8px!important;
+  }
+
+  .boss-info-strip h1,
+  .boss-info-strip .boss-progress{
+    display:none!important;
+  }
+
+  .boss-info-strip .boss-ribbon{
+    align-self:center!important;
+    padding:5px 7px!important;
+    font-size:.43rem!important;
+  }
+
+  .boss-info-strip #taunt{
+    align-self:center!important;
+    min-width:0!important;
+    font-size:.48rem!important;
+    line-height:1.12!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  /* Mirrored side characters get dedicated space, including their HP block. */
+  .enemy-field.enemy-stage{
+    grid-template-columns:minmax(0,1fr) 82px!important;
+    min-height:112px!important;
+    gap:7px!important;
+    padding:7px 8px 8px!important;
+  }
+
+  .player-stage{
+    grid-template-columns:82px minmax(0,1fr)!important;
+    min-height:116px!important;
+    gap:7px!important;
+    padding:7px 8px 8px!important;
+  }
+
+  .boss-side-visual,
+  .tula-visual{
+    width:100%!important;
+    height:102px!important;
+    min-height:102px!important;
+    grid-template-rows:minmax(62px,1fr) auto!important;
+    gap:4px!important;
+    overflow:visible!important;
+  }
+
+  .boss-side-visual .boss-img{
+    width:66px!important;
+    height:65px!important;
+    max-width:66px!important;
+    align-self:center!important;
+  }
+
+  .tula-visual > img{
+    width:62px!important;
+    height:65px!important;
+    align-self:center!important;
+  }
+
+  .boss-side-visual .boss-aura,
+  .tula-visual .tula-aura{
+    width:60px!important;
+    height:60px!important;
+    bottom:31px!important;
+  }
+
+  .character-health{
+    width:100%!important;
+    min-height:28px!important;
+    padding:4px 5px!important;
+    border-radius:9px!important;
+  }
+
+  .character-health small{
+    font-size:.33rem!important;
+  }
+
+  .character-health b{
+    font-size:.49rem!important;
+  }
+
+  .character-health .health{
+    height:6px!important;
+    min-height:6px!important;
+  }
+
+  /* Board slots share one rhythm and never clip unit art or values. */
+  .enemy-board,
+  .player-field{
+    min-width:0!important;
+  }
+
+  .enemy-stage .lanes,
+  .player-field .lanes{
+    gap:6px!important;
+  }
+
+  .enemy-stage .slot,
+  .player-field .slot{
+    min-height:66px!important;
+    height:66px!important;
+    padding:5px!important;
+    border-radius:13px!important;
+  }
+
+  .unit-card-inner{
+    grid-template-columns:48px minmax(0,1fr)!important;
+    gap:6px!important;
+  }
+
+  .unit-monster-img{
+    width:48px!important;
+    height:52px!important;
+  }
+
+  .unit-card-copy b{
+    font-size:.6rem!important;
+    line-height:1.04!important;
+  }
+
+  .unit-card-copy small{
+    font-size:.34rem!important;
+    line-height:1.05!important;
+  }
+
+  .unit-card-copy span{
+    gap:5px!important;
+    margin-top:3px!important;
+  }
+
+  .unit-card-copy span em{
+    font-size:.45rem!important;
+  }
+
+  .energy-line{
+    min-height:18px!important;
+    margin-top:4px!important;
+    align-items:center!important;
+  }
+
+  .energy{
+    align-items:center!important;
+  }
+
+  .orb{
+    width:15px!important;
+    height:15px!important;
+  }
+
+  /* Give the hand the spare vertical area. */
+  .hand{
+    min-height:clamp(350px,43svh,410px)!important;
+    padding:10px 8px 11px!important;
+    grid-template-rows:26px minmax(0,1fr) 52px!important;
+    margin-top:8px!important;
+  }
+
+  .hand-title-v5{
+    min-height:26px!important;
+    align-items:center!important;
+  }
+
+  .cards{
+    grid-auto-columns:clamp(166px,45vw,190px)!important;
+    gap:10px!important;
+    padding:5px 7px 12px!important;
+    scroll-padding-inline:7px!important;
+    align-items:start!important;
+  }
+
+  .monster-card{
+    min-height:282px!important;
+    max-height:306px!important;
+    height:auto!important;
+    grid-template-rows:22px minmax(94px,1fr) 42px 50px 46px 17px!important;
+    padding:9px 8px 10px!important;
+    border-radius:18px!important;
+    overflow:hidden!important;
+  }
+
+  .monster-type{
+    font-size:.47rem!important;
+    padding:4px 8px!important;
+  }
+
+  .monster-cost{
+    top:7px!important;
+    left:7px!important;
+    min-width:48px!important;
+    height:35px!important;
+  }
+
+  .monster-cost strong{
+    font-size:.96rem!important;
+  }
+
+  .monster-art-frame{
+    min-height:94px!important;
+    margin:2px 3px 5px!important;
+    overflow:hidden!important;
+  }
+
+  .monster-art-img{
+    width:100%!important;
+    height:100%!important;
+    max-height:116px!important;
+    padding:3px!important;
+    margin:auto!important;
+  }
+
+  .monster-name{
+    min-height:42px!important;
+    padding:5px 6px!important;
+  }
+
+  .monster-name strong{
+    font-size:.86rem!important;
+    line-height:1.02!important;
+  }
+
+  .monster-name small{
+    font-size:.43rem!important;
+    line-height:1.05!important;
+  }
+
+  .monster-effect{
+    min-height:50px!important;
+    padding:6px 7px!important;
+  }
+
+  .monster-effect small{
+    font-size:.43rem!important;
+  }
+
+  .monster-effect span{
+    font-size:.55rem!important;
+    line-height:1.18!important;
+    -webkit-line-clamp:2!important;
+  }
+
+  .monster-stats{
+    min-height:46px!important;
+    gap:6px!important;
+  }
+
+  .monster-stats b{
+    min-height:44px!important;
+    padding:5px 6px!important;
+    display:grid!important;
+    grid-template-columns:auto auto!important;
+    grid-template-rows:auto auto!important;
+    justify-content:center!important;
+    align-content:center!important;
+    column-gap:5px!important;
+    row-gap:2px!important;
+  }
+
+  .monster-stats b > span{
+    grid-row:1 / 3!important;
+    align-self:center!important;
+    font-size:.82rem!important;
+  }
+
+  .monster-stats b > strong{
+    grid-column:2!important;
+    grid-row:1!important;
+    font-size:1.02rem!important;
+    justify-self:start!important;
+  }
+
+  .monster-stats b > small{
+    grid-column:2!important;
+    grid-row:2!important;
+    justify-self:start!important;
+    font-size:.31rem!important;
+  }
+
+  .monster-play-hint{
+    font-size:.38rem!important;
+  }
+
+  .footer-actions{
+    height:52px!important;
+    margin-top:7px!important;
+  }
+
+  .end{
+    height:50px!important;
+    min-height:50px!important;
+    border-radius:15px!important;
+  }
+
+  /* The optional boss route belongs after the active game, not inside it. */
+  .boss-roster-section{
+    margin-top:14px!important;
+    opacity:.94!important;
+  }
+
+  .boss-roster-section > summary{
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .info-toast-mini{
+    bottom:max(78px,calc(env(safe-area-inset-bottom,0px) + 70px))!important;
+  }
+}
+
+/* Small iPhones: preserve complete cards; width shrinks before typography does. */
+@media (max-width:390px){
+  .enemy-field.enemy-stage,
+  .player-stage{
+    grid-template-columns:minmax(0,1fr) 76px!important;
+  }
+
+  .player-stage{
+    grid-template-columns:76px minmax(0,1fr)!important;
+  }
+
+  .boss-side-visual,
+  .tula-visual{
+    height:98px!important;
+    min-height:98px!important;
+  }
+
+  .cards{
+    grid-auto-columns:clamp(160px,46vw,176px)!important;
+    gap:9px!important;
+  }
+
+  .monster-card{
+    min-height:274px!important;
+    max-height:294px!important;
+  }
+
+  .monster-name strong{
+    font-size:.82rem!important;
+  }
+
+  .monster-effect span{
+    font-size:.52rem!important;
+  }
+}
