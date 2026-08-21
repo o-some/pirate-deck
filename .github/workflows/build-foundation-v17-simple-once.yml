@@ -1,0 +1,53 @@
+name: Build Foundation CSS V17 simple once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-foundation-v17-simple-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/foundation-css-v17-20260821
+          fetch-depth: 0
+      - name: Concatenate active foundation CSS and wire it
+        run: |
+          set -euo pipefail
+          files=(pirate-deck.css pirate-deck-mobile.css pirate-deck-card-polish.css pirate-deck-ci-pass.css pirate-deck-mobile-final.css pirate-deck-desktop-fit.css pirate-deck-cards-toast.css pirate-deck-card-ui-v2.css pirate-deck-hand-premium-v3.css pirate-deck-guide-v1.css pirate-deck-monster-cards-v1.css pirate-deck-battle-layout-v3.css)
+          : > public/pirate-deck-foundation-v17.css
+          printf '/* Pirate Deck — Foundation CSS V17 | exact previous cascade order */\n\n' >> public/pirate-deck-foundation-v17.css
+          for f in "${files[@]}"; do
+            printf '\n/* ===== %s ===== */\n' "$f" >> public/pirate-deck-foundation-v17.css
+            cat "public/$f" >> public/pirate-deck-foundation-v17.css
+            printf '\n' >> public/pirate-deck-foundation-v17.css
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/index.astro')
+          text=p.read_text()
+          files=['pirate-deck.css','pirate-deck-mobile.css','pirate-deck-card-polish.css','pirate-deck-ci-pass.css','pirate-deck-mobile-final.css','pirate-deck-desktop-fit.css','pirate-deck-cards-toast.css','pirate-deck-card-ui-v2.css','pirate-deck-hand-premium-v3.css','pirate-deck-guide-v1.css','pirate-deck-monster-cards-v1.css','pirate-deck-battle-layout-v3.css']
+          lines=[f'  <link rel="stylesheet" href={{`${{base}}{f}`}} />\n' for f in files]
+          old=''.join(lines)
+          new='  <link rel="stylesheet" href={`${base}pirate-deck-foundation-v17.css`} />\n'
+          if old not in text:
+              print(text[text.find('<head>'):text.find('</head>')])
+              raise SystemExit('foundation link block not found')
+          p.write_text(text.replace(old,new,1))
+          PY
+          test -s public/pirate-deck-foundation-v17.css
+          grep -q 'pirate-deck-foundation-v17.css' src/pages/index.astro
+          grep -q 'pirate-deck-runtime-v15.css' src/pages/index.astro
+      - name: Commit candidate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/pirate-deck-foundation-v17.css src/pages/index.astro
+          git commit -m 'Consolidate foundation CSS into V17'
+          git push origin HEAD:feat/foundation-css-v17-20260821
