@@ -1,0 +1,70 @@
+name: Consolidate Runtime CSS V14 once
+
+on:
+  push:
+    branches: [feat/runtime-css-consolidation-v14-20260821]
+    paths:
+      - '.github/workflows/consolidate-runtime-css-v14-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  consolidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build exact V14 runtime CSS
+        run: |
+          set -euo pipefail
+          {
+            printf '/* Pirate Deck — Runtime CSS V14\n   Exact concatenation: HUD V4 → Hand V5 → Mobile V6 → Polish V7 → Release V12. */\n\n'
+            cat public/pirate-deck-hud-hp-v4.css
+            printf '\n\n'
+            cat public/pirate-deck-hand7-v5.css
+            printf '\n\n'
+            cat public/pirate-deck-mobile-balance-v6.css
+            printf '\n\n'
+            cat public/pirate-deck-final-polish-v7.css
+            printf '\n\n'
+            cat public/pirate-deck-release-v12.css
+          } > public/pirate-deck-runtime-v14.css
+
+      - name: Replace five runtime links with V14
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/index.astro')
+          text=p.read_text()
+          old='''  <link rel="stylesheet" href={`${base}pirate-deck-hud-hp-v4.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-hand7-v5.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-mobile-balance-v6.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-final-polish-v7.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-release-v12.css`} />
+'''
+          new='  <link rel="stylesheet" href={`${base}pirate-deck-runtime-v14.css`} />\n'
+          if old not in text:
+              raise SystemExit('Expected V4/V5/V6/V7/V12 runtime block not found')
+          p.write_text(text.replace(old,new,1))
+          PY
+
+      - name: Verify source order and wiring
+        run: |
+          set -euo pipefail
+          grep -q 'HUD / Character HP V4' public/pirate-deck-runtime-v14.css
+          grep -q 'Hand 7 / Card Readability V5' public/pirate-deck-runtime-v14.css
+          grep -q 'Mobile / Viewport Balance V6' public/pirate-deck-runtime-v14.css
+          grep -q 'Final Cross-Device Polish V7' public/pirate-deck-runtime-v14.css
+          grep -q 'Consolidated Release CSS V12' public/pirate-deck-runtime-v14.css
+          test "$(grep -c 'pirate-deck-runtime-v14.css' src/pages/index.astro)" -eq 1
+          for f in pirate-deck-hud-hp-v4.css pirate-deck-hand7-v5.css pirate-deck-mobile-balance-v6.css pirate-deck-final-polish-v7.css pirate-deck-release-v12.css; do
+            test "$(grep -c "$f" src/pages/index.astro)" -eq 0
+          done
+
+      - name: Commit consolidation
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- public/pirate-deck-runtime-v14.css src/pages/index.astro
+          git commit -m 'Consolidate runtime CSS into V14'
+          git push
