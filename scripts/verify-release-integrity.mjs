@@ -68,6 +68,7 @@ for (const scriptName of [
   pass(typeof scripts[scriptName] === 'string' && scripts[scriptName].length > 0, `package script ${scriptName} is missing`);
 }
 pass(packageJson.engines?.node === '>=22.19.0', 'package.json must require Node >=22.19.0');
+pass(packageJson.dependencies?.astro === '7.2.4', 'Astro must remain pinned to the V28 security baseline 7.2.4');
 pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the gameplay contract verifier');
 pass(scripts['verify:pages'].includes('verify-pages-deploy.mjs'), 'verify:pages must run the Pages smoke verifier');
 pass(scripts['verify:runtime'].includes('verify:gameplay'), 'verify:runtime must include verify:gameplay');
