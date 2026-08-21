@@ -1,0 +1,74 @@
+name: Verify and deploy Interaction Polish V10 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-deploy-interaction-v10-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: interaction-v10-release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build and verify V10
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          npm install
+          npm run build
+          test -s dist/pirate-deck-interaction-polish-v10.css
+          grep -q 'pirate-deck-interaction-polish-v10.css' dist/index.html
+          grep -q '.monster-card:not(.disabled)' dist/pirate-deck-interaction-polish-v10.css
+          grep -q '.end.next-boss' dist/pirate-deck-interaction-polish-v10.css
+          grep -q '.answer.good' dist/pirate-deck-interaction-polish-v10.css
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified V10 build
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - name: Record successful deployment
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          cat > docs/INTERACTION_POLISH_V10_PAGES_VERIFIED.md <<EOF
+          # Interaction Polish V10 Pages verification
+
+          - Astro production build: PASS
+          - V10 interaction CSS in build: PASS
+          - Playable/unavailable card states in build: PASS
+          - End-turn / quiz interaction states in build: PASS
+          - GitHub Pages deployment: PASS
+          - Release SHA: \`$RELEASE_SHA\`
+          - Page URL: $PAGE_URL
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/INTERACTION_POLISH_V10_PAGES_VERIFIED.md
+          git commit -m 'Record successful Interaction Polish V10 Pages deployment'
+          git push
