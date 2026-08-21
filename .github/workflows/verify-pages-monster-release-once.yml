@@ -1,0 +1,72 @@
+name: Verify Monster Cards Pages release once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-pages-monster-release-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-monster-release-verify
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Build Astro
+        run: npm run build
+      - name: Verify Monster Cards output
+        run: |
+          set -euo pipefail
+          test -s dist/card-monsters/monster-sprites-v1.webp
+          test -s dist/pirate-deck-monster-cards-v1.js
+          test -s dist/pirate-deck-monster-cards-v1.css
+          grep -q 'pirate-deck-monster-cards-v1.js' dist/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Checkout release branch for marker
+        uses: actions/checkout@v4
+      - name: Record successful Pages deployment
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          cat > docs/MONSTER_CARDS_PAGES_DEPLOYED.md <<EOF
+          # Monster Cards V1 Pages deployment
+
+          - Deployment: PASS
+          - Release commit: \`$RELEASE_SHA\`
+          - Page URL: $PAGE_URL
+          - Build contained local monster sprite sheet: PASS
+          - Build contained Monster Cards CSS/JS: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/MONSTER_CARDS_PAGES_DEPLOYED.md
+          git commit -m 'Record successful Monster Cards Pages deployment'
+          git push
