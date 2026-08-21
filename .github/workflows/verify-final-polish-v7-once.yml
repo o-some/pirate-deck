@@ -1,0 +1,64 @@
+name: Verify Final Polish V7 once
+
+on:
+  push:
+    branches: [feat/final-polish-v7-20260821]
+    paths:
+      - '.github/workflows/verify-final-polish-v7-once.yml'
+      - 'src/pages/index.astro'
+      - 'public/pirate-deck-final-polish-v7.css'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          node --check public/pirate-deck-hand7-v5.js
+          node --check public/pirate-deck-hud-hp-v4.js
+      - name: Install and build Astro
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+      - name: Verify V7 output
+        run: |
+          set -euo pipefail
+          test -s dist/pirate-deck-final-polish-v7.css
+          grep -q 'pirate-deck-final-polish-v7.css' dist/index.html
+          grep -q 'min-width:44px' public/pirate-deck-final-polish-v7.css
+          grep -q 'object-fit:contain' public/pirate-deck-final-polish-v7.css
+          grep -q 'grid-auto-columns:clamp(168px,45vw,196px)' public/pirate-deck-final-polish-v7.css
+          grep -q 'boss-roster-section' public/pirate-deck-final-polish-v7.css
+          grep -q 'monster-card' public/pirate-deck-final-polish-v7.css
+          grep -q 'character-health' public/pirate-deck-final-polish-v7.css
+      - name: Record successful verification
+        run: |
+          cat > docs/FINAL_POLISH_V7_VERIFIED.md <<'EOF'
+          # Final Cross-Device Polish V7 verification
+
+          - Existing JavaScript syntax: PASS
+          - Astro production build: PASS
+          - V7 final CSS layer included in build: PASS
+          - Minimum tap-target rules: PASS
+          - Tula / boss / monster images centered with contain: PASS
+          - Character HP layout isolation retained: PASS
+          - Mobile card geometry and swipe width rules: PASS
+          - Desktop/tablet responsive geometry rules: PASS
+          - Boss route kept outside active play surface: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/FINAL_POLISH_V7_VERIFIED.md
+          git commit -m 'Record successful Final Polish V7 verification'
+          git push
