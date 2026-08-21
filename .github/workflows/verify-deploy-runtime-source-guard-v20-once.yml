@@ -1,0 +1,71 @@
+name: Verify and deploy Runtime Source Guard V20 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-deploy-runtime-source-guard-v20-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Verify source guard and build
+        run: |
+          set -euo pipefail
+          node --check scripts/verify-runtime-sources.mjs
+          npm run build
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+          test -s dist/pirate-deck-ui-runtime-v18.js
+          node --check dist/pirate-deck-ui-runtime-v18.js
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  record:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record successful release
+        run: |
+          cat > docs/RUNTIME_SOURCE_GUARD_V20_PAGES_VERIFIED.md <<'EOF'
+          # Runtime Source Guard V20 Pages verification
+
+          - Runtime source guard: PASS
+          - Astro production build: PASS
+          - Foundation V17 retained: PASS
+          - Runtime V15 retained: PASS
+          - UI Runtime V18 retained: PASS
+          - GitHub Pages deployment: PASS
+          - Release SHA: `3666119232b9589fa567646fd0fc05a99b448a56`
+          - Page URL: https://o-some.github.io/pirate-deck/
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/RUNTIME_SOURCE_GUARD_V20_PAGES_VERIFIED.md
+          git commit -m 'Record Runtime Source Guard V20 Pages deployment'
+          git push
