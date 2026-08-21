@@ -1,132 +1,102 @@
-name: Verify Hand 7 V5 once
+name: Diagnose Hand 7 V5 once
 
 on:
   push:
     branches: [feat/hand7-cards-v5-20260821]
     paths:
       - '.github/workflows/verify-hand7-v5-once.yml'
-      - 'src/pages/index.astro'
-      - 'public/pirate-deck-hand7-v5.js'
-      - 'public/pirate-deck-hand7-v5.css'
 
 permissions:
   contents: write
 
 jobs:
-  verify:
+  diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Syntax and Astro build
+      - name: Build
         run: |
           set -euo pipefail
           node --check public/pirate-deck-hand7-v5.js
-          node --check public/pirate-deck-monster-cards-v1.js
           npm install
           npm run build
-          test -s dist/pirate-deck-hand7-v5.js
-          test -s dist/pirate-deck-hand7-v5.css
-          grep -q 'pirate-deck-hand7-v5.js' dist/index.html
-          grep -q 'pirate-deck-hand7-v5.css' dist/index.html
-          grep -q 'let handLimit = 7' public/pirate-deck-hand7-v5.js
-      - name: Install Playwright Chromium
+      - name: Install Chromium
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Browser QA desktop and iPhone
+      - name: Capture layout metrics
         run: |
           set -euo pipefail
-          mkdir -p .qa-root/pirate-deck
+          mkdir -p .qa-root/pirate-deck docs
           cp -a dist/. .qa-root/pirate-deck/
-          python3 -m http.server 4173 --directory .qa-root >/tmp/hand7-qa.log 2>&1 &
+          python3 -m http.server 4173 --directory .qa-root >/tmp/hand7-diagnostic.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
           node <<'NODE'
           const { chromium } = require('playwright');
-          const assert = (value, message) => { if(!value) throw new Error(message); };
+          const fs = require('fs');
           const cases = [
             { name:'desktop', viewport:{width:1360,height:900}, mobile:false },
             { name:'iphone', viewport:{width:390,height:844}, mobile:true }
           ];
           (async()=>{
-            const browser = await chromium.launch({headless:true});
+            const browser=await chromium.launch({headless:true});
+            const report={};
             for(const test of cases){
-              const context = await browser.newContext({viewport:test.viewport,isMobile:test.mobile,hasTouch:test.mobile});
-              await context.addInitScript(() => localStorage.setItem('pirateDeckGuideSeen','1'));
-              const page = await context.newPage();
+              const context=await browser.newContext({viewport:test.viewport,isMobile:test.mobile,hasTouch:test.mobile});
+              await context.addInitScript(()=>localStorage.setItem('pirateDeckGuideSeen','1'));
+              const page=await context.newPage();
               await page.goto('http://127.0.0.1:4173/pirate-deck/',{waitUntil:'networkidle'});
               await page.click('#start');
-              await page.waitForTimeout(400);
-              const data = await page.evaluate(() => {
-                const rect = el => el.getBoundingClientRect();
-                const cards = [...document.querySelectorAll('.monster-card')];
-                const end = document.querySelector('#endTurn');
-                const host = document.querySelector('#cards');
-                const cardChecks = cards.map(card => {
-                  const cost=card.querySelector('.monster-cost');
-                  const art=card.querySelector('.monster-art-img');
-                  const name=card.querySelector('.monster-name');
-                  const effect=card.querySelector('.monster-effect');
-                  const stats=card.querySelector('.monster-stats');
-                  const hint=card.querySelector('.monster-play-hint');
-                  const c=rect(card), n=rect(name), e=rect(effect), s=rect(stats), h=rect(hint), k=rect(cost);
-                  return {
-                    image: !!art && art.complete && art.naturalWidth>0,
-                    costInside: k.left>=c.left-1 && k.top>=c.top-1 && k.right<=c.right+1,
-                    ordered: n.bottom<=e.top+2 && e.bottom<=s.top+2 && s.bottom<=h.top+4 && h.bottom<=c.bottom+1,
-                    width:c.width,
-                    height:c.height,
-                    disabledOpacity: card.disabled ? parseFloat(getComputedStyle(card).opacity) : 1
-                  };
-                });
-                const endRect=rect(end);
+              await page.waitForTimeout(250);
+              if(await page.locator('#gameGuide').evaluate(el=>el.classList.contains('open') || el.getAttribute('aria-hidden')==='false').catch(()=>false)){
+                await page.locator('#guideStart').click().catch(()=>{});
+                await page.waitForTimeout(150);
+              }
+              report[test.name]=await page.evaluate(()=>{
+                const rect=el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,top:r.top,right:r.right,bottom:r.bottom,left:r.left};};
+                const cards=[...document.querySelectorAll('.monster-card')];
+                const host=document.querySelector('#cards');
+                const end=document.querySelector('#endTurn');
                 return {
+                  viewport:{width:innerWidth,height:innerHeight},
+                  handCounter:document.querySelector('#handCount')?.textContent?.trim()||null,
                   count:cards.length,
-                  counter:document.querySelector('#handCount')?.textContent?.trim(),
-                  cards:cardChecks,
-                  noEndOverlap:cards.every(card=>rect(card).bottom<=endRect.top+2),
-                  horizontalScrollable:host.scrollWidth>host.clientWidth,
-                  gridColumns:getComputedStyle(host).gridTemplateColumns
+                  host:{clientWidth:host?.clientWidth||0,scrollWidth:host?.scrollWidth||0},
+                  end:end?rect(end):null,
+                  cards:cards.map((card,index)=>{
+                    const q=s=>card.querySelector(s);
+                    const cost=q('.monster-cost'),art=q('.monster-art-frame'),name=q('.monster-name'),effect=q('.monster-effect'),stats=q('.monster-stats'),hint=q('.monster-play-hint'),img=q('.monster-art-img');
+                    const boxes={card:rect(card),cost:rect(cost),art:rect(art),name:rect(name),effect:rect(effect),stats:rect(stats),hint:rect(hint)};
+                    return {
+                      index,
+                      disabled:card.disabled,
+                      opacity:parseFloat(getComputedStyle(card).opacity),
+                      imageLoaded:!!img&&img.complete&&img.naturalWidth>0,
+                      boxes,
+                      gaps:{nameEffect:boxes.effect.top-boxes.name.bottom,effectStats:boxes.stats.top-boxes.effect.bottom,statsHint:boxes.hint.top-boxes.stats.bottom},
+                      costInside:boxes.cost.left>=boxes.card.left-1&&boxes.cost.top>=boxes.card.top-1&&boxes.cost.right<=boxes.card.right+1,
+                      endGap:end?rect(end).top-boxes.card.bottom:null
+                    };
+                  })
                 };
               });
-              assert(data.count===7, `${test.name}: expected 7 cards, got ${data.count}`);
-              assert(data.counter==='7/7', `${test.name}: hand counter is ${data.counter}`);
-              assert(data.cards.every(x=>x.image), `${test.name}: a monster image failed`);
-              assert(data.cards.every(x=>x.costInside), `${test.name}: a cost badge is clipped`);
-              assert(data.cards.every(x=>x.ordered), `${test.name}: card sections overlap`);
-              assert(data.cards.every(x=>x.width>=148), `${test.name}: cards too narrow`);
-              assert(data.cards.every(x=>x.disabledOpacity>=0.7), `${test.name}: disabled card too dark`);
-              assert(data.noEndOverlap, `${test.name}: cards overlap end-turn button`);
-              if(test.mobile) assert(data.horizontalScrollable, 'iphone: seven-card hand must swipe horizontally');
-              console.log(test.name,'PASS',data);
               await context.close();
             }
             await browser.close();
-          })().catch(err=>{console.error(err);process.exit(1);});
+            fs.writeFileSync('docs/HAND7_V5_METRICS.json',JSON.stringify(report,null,2));
+          })().catch(err=>{
+            fs.writeFileSync('docs/HAND7_V5_METRICS.json',JSON.stringify({error:String(err),stack:err.stack},null,2));
+          });
           NODE
-      - name: Record verification
+      - name: Commit metrics
         run: |
-          cat > docs/HAND7_V5_VERIFIED.md <<'EOF'
-          # Hand 7 / Card Readability V5 verification
-
-          - JavaScript syntax: PASS
-          - Astro production build: PASS
-          - Initial hand / maximum hand: 7 cards: PASS
-          - Hand counter 7/7: PASS
-          - Desktop seven-card row: PASS
-          - iPhone horizontal swipe hand: PASS
-          - Monster images fully loaded: PASS
-          - Cost badges visible: PASS
-          - Name / effect / attack / defense sections do not overlap: PASS
-          - Disabled cards remain readable: PASS
-          - Cards do not overlap End Turn: PASS
-          EOF
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- docs/HAND7_V5_VERIFIED.md
-          git commit -m 'Record successful Hand 7 V5 verification'
+          git add -- docs/HAND7_V5_METRICS.json
+          git commit -m 'Record Hand 7 V5 layout metrics' || exit 0
           git push
