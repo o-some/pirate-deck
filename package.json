@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "prepare:styles": "node scripts/build-foundation-css.mjs",
-    "dev": "npm run prepare:styles && astro dev",
-    "build": "npm run prepare:styles && astro build",
+    "prepare:scripts": "node scripts/build-ui-runtime.mjs",
+    "prepare:runtime": "npm run prepare:styles && npm run prepare:scripts",
+    "dev": "npm run prepare:runtime && astro dev",
+    "build": "npm run prepare:runtime && astro build",
     "preview": "astro preview"
   },
   "dependencies": {
