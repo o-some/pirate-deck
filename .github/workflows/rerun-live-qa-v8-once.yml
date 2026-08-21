@@ -1,0 +1,24 @@
+name: Trigger post-fix Live QA V8 once
+
+on:
+  push:
+    branches: [feat/live-qa-v8-20260821]
+    paths:
+      - '.github/workflows/rerun-live-qa-v8-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger diagnostic workflow with current branch state
+        run: |
+          printf '\n# rerun-after-v8-fix\n' >> .github/workflows/diagnose-live-qa-v8-once.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- .github/workflows/diagnose-live-qa-v8-once.yml
+          git commit -m 'Rerun Live QA V8 after measured fixes'
+          git push
