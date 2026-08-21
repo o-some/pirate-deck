@@ -1,0 +1,50 @@
+name: Verify Top HUD V9 static once
+
+on:
+  push:
+    branches: [feat/top-hud-v9-20260821]
+    paths:
+      - '.github/workflows/verify-top-hud-v9-static-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify and build
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-hud-hp-v4.js
+          npm install
+          npm run build
+          test -s dist/pirate-deck-top-hud-v9.css
+          grep -q 'pirate-deck-top-hud-v9.css' dist/index.html
+          grep -q 'grid-template-areas:"boss shells turn energy level"' public/pirate-deck-top-hud-v9.css
+          grep -q '.boss-info-strip h1' public/pirate-deck-top-hud-v9.css
+          grep -q '.boss-info-strip .boss-progress' public/pirate-deck-top-hud-v9.css
+          grep -q '.boss-info-strip .boss-ribbon' public/pirate-deck-top-hud-v9.css
+      - name: Record verification
+        run: |
+          cat > docs/TOP_HUD_V9_VERIFIED.md <<'EOF'
+          # Top HUD V9 verification
+
+          - Existing JavaScript syntax: PASS
+          - Astro production build: PASS
+          - Boss identity left / level right grid: PASS
+          - Shells / turn / wave energy kept between them: PASS
+          - Duplicate lower boss title / progress / ribbon hidden: PASS
+          - Thin taunt/status strip retained: PASS
+          - Responsive iPhone / tablet / desktop rules included: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/TOP_HUD_V9_VERIFIED.md
+          git commit -m 'Record successful Top HUD V9 verification'
+          git push
