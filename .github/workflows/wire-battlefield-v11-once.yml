@@ -1,0 +1,36 @@
+name: Wire Battlefield V11 once
+
+on:
+  push:
+    branches: [feat/battlefield-readability-v11-20260821]
+    paths:
+      - '.github/workflows/wire-battlefield-v11-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire V11 stylesheet last
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('src/pages/index.astro')
+          text=path.read_text()
+          anchor='  <link rel="stylesheet" href={`${base}pirate-deck-interaction-polish-v10.css`} />\n'
+          line='  <link rel="stylesheet" href={`${base}pirate-deck-battlefield-v11.css`} />\n'
+          if line not in text:
+              if anchor not in text:
+                  raise SystemExit('V10 CSS anchor missing')
+              text=text.replace(anchor,anchor+line,1)
+          path.write_text(text)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- src/pages/index.astro
+          git commit -m 'Wire battlefield readability V11' || exit 0
+          git push
