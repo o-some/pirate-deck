@@ -113,3 +113,5 @@ jobs:
           git add -- docs/BATTLEFIELD_V11_VERIFIED.md
           git commit -m 'Record successful Battlefield V11 verification'
           git push
+
+# retry-trigger
