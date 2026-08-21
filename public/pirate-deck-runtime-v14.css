@@ -1,0 +1,9 @@
+/* Pirate Deck — Runtime CSS V14
+   Single stable runtime entrypoint. Existing layers are imported in their exact previous cascade order.
+   No visual or gameplay changes. */
+
+@import url('./pirate-deck-hud-hp-v4.css');
+@import url('./pirate-deck-hand7-v5.css');
+@import url('./pirate-deck-mobile-balance-v6.css');
+@import url('./pirate-deck-final-polish-v7.css');
+@import url('./pirate-deck-release-v12.css');
