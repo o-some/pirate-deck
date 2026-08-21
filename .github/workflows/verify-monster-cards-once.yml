@@ -11,6 +11,9 @@ on:
       - 'public/pirate-deck-monster-cards-v1.css'
       - 'public/card-monsters/monster-sprites-v1.webp'
 
+permissions:
+  contents: write
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -43,3 +46,21 @@ jobs:
           grep -q 'Karte verloren' public/pirate-deck-monster-cards-v1.js
           grep -q 'monster-sprites-v1.webp' public/pirate-deck-monster-cards-v1.css
           echo 'Monster Cards V1 verification: PASS'
+      - name: Record successful verification
+        run: |
+          cat > docs/MONSTER_CARDS_VERIFIED.md <<'EOF'
+          # Monster Cards V1 verification
+
+          - JavaScript syntax: PASS
+          - Astro build: PASS
+          - Local monster sprite sheet in dist: PASS
+          - Monster CSS/JS output: PASS
+          - Independent language question pool: PASS
+          - Wrong-answer card loss rule: PASS
+          - Responsive monster card UI wiring: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/MONSTER_CARDS_VERIFIED.md
+          git commit -m 'Record successful Monster Cards V1 verification'
+          git push
