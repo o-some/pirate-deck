@@ -1,0 +1,23 @@
+name: QA Pages V25 Post-Merge
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify live Pirate Deck payload
+        run: npm run verify:pages -- https://o-some.github.io/pirate-deck/
