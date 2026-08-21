@@ -1,0 +1,149 @@
+name: Verify Legacy CSS Cleanup V13 once
+
+on:
+  push:
+    branches: [feat/legacy-css-cleanup-v13-20260821]
+    paths:
+      - '.github/workflows/verify-legacy-css-v13-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout baseline main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          ref: feat/legacy-css-cleanup-v13-20260821
+          path: candidate
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build baseline
+        working-directory: baseline
+        run: |
+          npm install
+          npm run build
+      - name: Build candidate
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          npm install
+          npm run build
+          test -s dist/pirate-deck-release-v12.css
+          grep -q 'pirate-deck-release-v12.css' dist/index.html
+          test ! -e public/pirate-deck-live-qa-fixes-v8.css
+          test ! -e public/pirate-deck-top-hud-v9.css
+          test ! -e public/pirate-deck-interaction-polish-v10.css
+          test ! -e public/pirate-deck-battlefield-v11.css
+      - name: Verify active runtime output parity
+        run: |
+          set -euo pipefail
+          cmp baseline/dist/index.html candidate/dist/index.html
+          cmp baseline/dist/pirate-deck-release-v12.css candidate/dist/pirate-deck-release-v12.css
+          cmp baseline/dist/pirate-deck.js candidate/dist/pirate-deck.js
+          cmp baseline/dist/pirate-deck-monster-cards-v1.js candidate/dist/pirate-deck-monster-cards-v1.js
+      - name: Install browser QA
+        run: |
+          mkdir qa && cd qa
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Compare rendered layout
+        run: |
+          set -euo pipefail
+          mkdir -p .serve-main/pirate-deck .serve-candidate/pirate-deck
+          cp -a baseline/dist/. .serve-main/pirate-deck/
+          cp -a candidate/dist/. .serve-candidate/pirate-deck/
+          python3 -m http.server 4173 --directory .serve-main >/tmp/v13-main.log 2>&1 &
+          P1=$!
+          python3 -m http.server 4174 --directory .serve-candidate >/tmp/v13-candidate.log 2>&1 &
+          P2=$!
+          trap 'kill $P1 $P2 || true' EXIT
+          sleep 2
+          node <<'NODE'
+          const { chromium } = require('./qa/node_modules/playwright');
+          const cases=[['iphone-se',375,667,true],['iphone',390,844,true],['laptop',1024,768,false],['desktop',1360,856,false]];
+          const selectors=['.battle-hud','.boss-info-strip','.enemy-field.enemy-stage','.player-stage','.hand','.monster-card','.monster-cost','.monster-art-frame','.monster-name','.monster-effect','.monster-stats','.end','.character-health','.enemy-stage .slot','.player-field .slot'];
+          const props=['display','position','width','height','minWidth','minHeight','maxWidth','maxHeight','paddingTop','paddingRight','paddingBottom','paddingLeft','marginTop','marginRight','marginBottom','marginLeft','gap','rowGap','columnGap','gridTemplateColumns','gridTemplateRows','alignItems','justifyContent','overflow','overflowX','overflowY','borderRadius','fontSize','lineHeight','color','backgroundColor','opacity','transform'];
+          async function snap(page){
+            return page.evaluate(({selectors,props})=>{
+              const out={};
+              for(const s of selectors){
+                const el=document.querySelector(s);
+                if(!el){out[s]=null;continue;}
+                const r=el.getBoundingClientRect(),cs=getComputedStyle(el),style={};
+                for(const p of props) style[p]=cs[p];
+                out[s]={rect:{x:r.x,y:r.y,w:r.width,h:r.height},style};
+              }
+              out.cardCount=document.querySelectorAll('.monster-card').length;
+              out.endText=document.querySelector('#endTurn')?.textContent?.trim();
+              out.bossText=document.querySelector('.hud-boss-name b')?.textContent?.trim();
+              out.levelText=document.querySelector('.hud-boss-level b')?.textContent?.trim();
+              return out;
+            },{selectors,props});
+          }
+          function compare(a,b,name){
+            const errors=[];
+            for(const k of ['cardCount','endText','bossText','levelText']) if(a[k]!==b[k]) errors.push(`${name}: ${k} differs`);
+            for(const s of selectors){
+              if(!a[s]||!b[s]){if(a[s]!==b[s]) errors.push(`${name}: ${s} presence differs`);continue;}
+              for(const k of ['x','y','w','h']) if(Math.abs(a[s].rect[k]-b[s].rect[k])>.6) errors.push(`${name}: ${s} rect ${k} differs`);
+              for(const p of props) if(a[s].style[p]!==b[s].style[p]) errors.push(`${name}: ${s} ${p} differs`);
+            }
+            return errors;
+          }
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const all=[];
+            for(const [name,width,height,mobile] of cases){
+              async function load(port){
+                const ctx=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile});
+                await ctx.addInitScript(()=>{localStorage.setItem('pirateDeckGuideSeen','1');localStorage.setItem('pirate-deck-guide-seen','1');});
+                const page=await ctx.newPage();
+                await page.goto(`http://127.0.0.1:${port}/pirate-deck/`,{waitUntil:'networkidle'});
+                if(await page.locator('#start').isVisible().catch(()=>false)) await page.click('#start');
+                if(await page.locator('#guideStart').isVisible().catch(()=>false)) await page.click('#guideStart');
+                await page.waitForTimeout(300);
+                const out=await snap(page); await ctx.close(); return out;
+              }
+              const base=await load(4173),cand=await load(4174);
+              const errors=compare(base,cand,name);
+              console.log(name,errors.length?'FAIL':'PASS');
+              all.push(...errors);
+            }
+            await browser.close();
+            if(all.length){console.error(all.join('\n'));process.exit(1);}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Record verification
+        working-directory: candidate
+        run: |
+          cat > docs/LEGACY_CSS_V13_VERIFIED.md <<'EOF'
+          # Legacy CSS Cleanup V13 verification
+
+          - Existing JavaScript syntax: PASS
+          - Baseline main Astro build: PASS
+          - Candidate Astro build: PASS
+          - V12 runtime stylesheet retained: PASS
+          - V8/V9/V10/V11 legacy files removed: PASS
+          - Runtime index / V12 CSS / core JS byte parity: PASS
+          - iPhone SE rendered parity: PASS
+          - iPhone rendered parity: PASS
+          - Laptop rendered parity: PASS
+          - Desktop rendered parity: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/LEGACY_CSS_V13_VERIFIED.md
+          git commit -m 'Record successful Legacy CSS V13 verification'
+          git push origin HEAD:feat/legacy-css-cleanup-v13-20260821
