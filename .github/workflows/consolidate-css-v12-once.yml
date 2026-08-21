@@ -66,3 +66,5 @@ jobs:
           git add -- public/pirate-deck-release-v12.css src/pages/index.astro
           git commit -m 'Consolidate release CSS into V12'
           git push
+
+# retry-trigger
