@@ -1,0 +1,74 @@
+name: Verify and deploy Dead Assets V19 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-deploy-dead-assets-v19-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Verify and build
+        run: |
+          set -euo pipefail
+          npm run build
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+          test -s dist/pirate-deck-ui-runtime-v18.js
+          for f in boss-roster.css pirate-deck-board-v4.css pirat-kai.svg; do
+            test ! -e "public/$f"
+            test ! -e "dist/$f"
+          done
+          node --check dist/pirate-deck-ui-runtime-v18.js
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  record:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record successful release
+        run: |
+          cat > docs/DEAD_ASSETS_V19_PAGES_VERIFIED.md <<'EOF'
+          # Dead Assets V19 Pages verification
+
+          - Astro production build: PASS
+          - Foundation V17 retained: PASS
+          - Runtime V15 retained: PASS
+          - UI Runtime V18 retained: PASS
+          - Dead legacy assets absent: PASS
+          - GitHub Pages deployment: PASS
+          - Release SHA: `717d6f933eeeaba0dfb3775d401d566afe7bd605`
+          - Page URL: https://o-some.github.io/pirate-deck/
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/DEAD_ASSETS_V19_PAGES_VERIFIED.md
+          git commit -m 'Record successful Dead Assets V19 Pages deployment'
+          git push
