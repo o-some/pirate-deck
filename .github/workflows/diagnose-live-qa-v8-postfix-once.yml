@@ -75,3 +75,5 @@ jobs:
           git add -- docs/LIVE_QA_V8_POSTFIX.md
           git commit -m 'Record post-fix Live QA V8 report'
           git push
+
+# retry-direct
