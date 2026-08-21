@@ -75,3 +75,5 @@ jobs:
           git add docs/ASSET_INTEGRITY_V22_PAGES_VERIFIED.md
           git commit -m 'Record Asset Integrity V22 Pages deployment'
           git push
+
+# retry-trigger
