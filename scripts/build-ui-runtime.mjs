@@ -7,11 +7,12 @@ const files = [
   'pirate-deck-info-toast.js',
   'pirate-deck-guide-v1.js',
   'pirate-deck-hud-hp-v4.js',
-  'pirate-deck-hand7-v5.js'
+  'pirate-deck-hand7-v5.js',
+  'pirate-deck-a11y-v23.js'
 ];
 
 const parts = [
-  '/* Pirate Deck — UI Runtime V18\n   Generated from the five UI/UX enhancement scripts in their exact runtime order.\n   Do not edit this generated file directly. */\n'
+  '/* Pirate Deck — UI Runtime V18\n   Generated from the UI/UX enhancement scripts in their exact runtime order.\n   Do not edit this generated file directly. */\n'
 ];
 
 for (const file of files) {
