@@ -29,6 +29,7 @@ const requiredFiles = [
   'scripts/verify-runtime-sources.mjs',
   'scripts/verify-style-sources.mjs',
   'scripts/verify-asset-integrity.mjs',
+  'scripts/verify-gameplay-contract.mjs',
   'scripts/verify-pages-deploy.mjs',
   'docs/RUNTIME_SOURCE_GUARD_V20_VERIFIED.md',
   'docs/RUNTIME_SOURCE_GUARD_V20_PAGES_VERIFIED.md',
@@ -57,6 +58,7 @@ for (const scriptName of [
   'verify:sources',
   'verify:styles',
   'verify:assets',
+  'verify:gameplay',
   'verify:release',
   'verify:pages',
   'verify:runtime',
@@ -64,7 +66,9 @@ for (const scriptName of [
 ]) {
   pass(typeof scripts[scriptName] === 'string' && scripts[scriptName].length > 0, `package script ${scriptName} is missing`);
 }
+pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the gameplay contract verifier');
 pass(scripts['verify:pages'].includes('verify-pages-deploy.mjs'), 'verify:pages must run the Pages smoke verifier');
+pass(scripts['verify:runtime'].includes('verify:gameplay'), 'verify:runtime must include verify:gameplay');
 pass(scripts['verify:runtime'].includes('verify:release'), 'verify:runtime must include verify:release');
 pass(scripts.build.includes('prepare:runtime'), 'build must prepare generated runtime assets');
 pass(scripts.build.includes('verify:runtime'), 'build must run runtime verification');

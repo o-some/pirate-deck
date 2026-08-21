@@ -10,9 +10,10 @@
     "verify:sources": "node scripts/verify-runtime-sources.mjs",
     "verify:styles": "node scripts/verify-style-sources.mjs",
     "verify:assets": "node scripts/verify-asset-integrity.mjs",
+    "verify:gameplay": "node scripts/verify-gameplay-contract.mjs",
     "verify:release": "node scripts/verify-release-integrity.mjs",
     "verify:pages": "node scripts/verify-pages-deploy.mjs",
-    "verify:runtime": "npm run verify:sources && npm run verify:styles && npm run verify:assets && npm run verify:release",
+    "verify:runtime": "npm run verify:sources && npm run verify:styles && npm run verify:assets && npm run verify:gameplay && npm run verify:release",
     "dev": "npm run prepare:runtime && npm run verify:runtime && astro dev",
     "build": "npm run prepare:runtime && npm run verify:runtime && astro build",
     "preview": "astro preview"
