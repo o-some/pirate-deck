@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.19.0"
+  },
   "scripts": {
     "prepare:styles": "node scripts/build-foundation-css.mjs",
     "prepare:scripts": "node scripts/build-ui-runtime.mjs",

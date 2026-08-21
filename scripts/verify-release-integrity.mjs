@@ -17,6 +17,7 @@ async function mustExist(path) {
 const requiredFiles = [
   'astro.config.mjs',
   'package.json',
+  '.nvmrc',
   '.gitignore',
   '.github/workflows/deploy.yml',
   'src/pages/index.astro',
@@ -66,6 +67,7 @@ for (const scriptName of [
 ]) {
   pass(typeof scripts[scriptName] === 'string' && scripts[scriptName].length > 0, `package script ${scriptName} is missing`);
 }
+pass(packageJson.engines?.node === '>=22.19.0', 'package.json must require Node >=22.19.0');
 pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the gameplay contract verifier');
 pass(scripts['verify:pages'].includes('verify-pages-deploy.mjs'), 'verify:pages must run the Pages smoke verifier');
 pass(scripts['verify:runtime'].includes('verify:gameplay'), 'verify:runtime must include verify:gameplay');
@@ -73,6 +75,9 @@ pass(scripts['verify:runtime'].includes('verify:release'), 'verify:runtime must 
 pass(scripts.build.includes('prepare:runtime'), 'build must prepare generated runtime assets');
 pass(scripts.build.includes('verify:runtime'), 'build must run runtime verification');
 pass(scripts.build.includes('astro build'), 'build must run astro build');
+
+const nvmrc = (await readFile(resolve(root, '.nvmrc'), 'utf8')).trim();
+pass(nvmrc === '22.19.0', '.nvmrc must pin Node 22.19.0');
 
 const astroConfig = await readFile(resolve(root, 'astro.config.mjs'), 'utf8');
 pass(astroConfig.includes("site: 'https://o-some.github.io'"), 'Astro site URL changed unexpectedly');
@@ -137,6 +142,9 @@ for (const generated of [
 const deployWorkflow = await readFile(resolve(root, '.github/workflows/deploy.yml'), 'utf8');
 for (const expected of [
   'branches: [main]',
+  'actions/checkout@v5',
+  'actions/setup-node@v5',
+  'node-version: 22.19.0',
   'npm install',
   'npm run build',
   'actions/upload-pages-artifact@v3',
