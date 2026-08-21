@@ -1,0 +1,36 @@
+name: QA CI Runtime V27
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify supported Node runtime and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.19.0
+
+      - name: Confirm Node runtime
+        run: node --version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check for critical dependency vulnerabilities
+        run: npm audit --audit-level=critical
+
+      - name: Remove one-time QA workflow from build workspace
+        run: rm -f .github/workflows/qa-ci-runtime-v27.yml
+
+      - name: Build and run all release guards
+        run: npm run build
