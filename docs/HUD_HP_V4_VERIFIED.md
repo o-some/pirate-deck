@@ -7,3 +7,4 @@
 - Character HP relocation layer included: PASS
 - Boss name / level sync layer included: PASS
 - Mobile responsive CSS included: PASS
+- Released to `main`: 21.08.2026
