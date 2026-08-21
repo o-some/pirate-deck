@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "prepare:styles": "node scripts/build-foundation-css.mjs",
+    "dev": "npm run prepare:styles && astro dev",
+    "build": "npm run prepare:styles && astro build",
     "preview": "astro preview"
   },
   "dependencies": {
