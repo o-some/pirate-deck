@@ -1,0 +1,88 @@
+name: Verify Style Source Guard V21 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-style-source-guard-v21-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout baseline
+        uses: actions/checkout@v4
+        with:
+          ref: 27f502e2b1351d0ecf3171f2f9ebd948ab61bf5a
+          path: baseline
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          ref: feat/style-source-guard-v21-20260821
+          path: candidate
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build baseline
+        working-directory: baseline
+        run: |
+          npm install
+          npm run build
+      - name: Verify candidate guard and build
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          node --check scripts/verify-style-sources.mjs
+          npm install
+          npm run build
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+          test -s dist/pirate-deck-ui-runtime-v18.js
+      - name: Verify guard rejects orphan CSS
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          printf '.orphan-test{display:none}\n' > public/orphan-test.css
+          if node scripts/verify-style-sources.mjs; then
+            echo 'Style guard incorrectly accepted orphan-test.css'
+            exit 1
+          fi
+          rm public/orphan-test.css
+          node scripts/verify-style-sources.mjs
+      - name: Verify runtime output unchanged
+        run: |
+          set -euo pipefail
+          cmp baseline/dist/index.html candidate/dist/index.html
+          cmp baseline/dist/pirate-deck-foundation-v17.css candidate/dist/pirate-deck-foundation-v17.css
+          cmp baseline/dist/pirate-deck-runtime-v15.css candidate/dist/pirate-deck-runtime-v15.css
+          cmp baseline/dist/pirate-deck-ui-runtime-v18.js candidate/dist/pirate-deck-ui-runtime-v18.js
+          for f in pirate-deck.js pirate-deck-card-rules-v2.js pirate-deck-monster-cards-v1.js; do
+            cmp "baseline/dist/$f" "candidate/dist/$f"
+          done
+      - name: Record verification on feature
+        working-directory: candidate
+        run: |
+          cat > docs/STYLE_SOURCE_GUARD_V21_VERIFIED.md <<'EOF'
+          # Style Source Guard V21 verification
+
+          - Existing CSS source audit: PASS
+          - Orphan CSS sources currently present: NONE
+          - Guard syntax: PASS
+          - Clean CSS source set accepted: PASS
+          - Synthetic orphan CSS rejected: PASS
+          - Astro production build: PASS
+          - Runtime index.html unchanged: PASS
+          - Foundation V17 unchanged: PASS
+          - Runtime V15 unchanged: PASS
+          - UI Runtime V18 unchanged: PASS
+          - Core gameplay/card/monster JavaScript unchanged: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/STYLE_SOURCE_GUARD_V21_VERIFIED.md
+          git commit -m 'Record Style Source Guard V21 verification'
+          git push origin HEAD:feat/style-source-guard-v21-20260821
