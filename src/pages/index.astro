@@ -23,6 +23,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
   <link rel="stylesheet" href={`${base}pirate-deck-hand-premium-v3.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-guide-v1.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-monster-cards-v1.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-battle-layout-v3.css`} />
 </head>
 <body>
   <div class="app" id="app">
@@ -44,23 +45,26 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
       <div class="hud-stat hud-health"><small id="bossHudLabel">PIRAT KAI ❤️</small><b id="bossHpText">24 / 24</b><div class="health"><i id="bossHp"></i></div></div>
     </section>
 
-    <main class="battle-board">
-      <section class="boss-stage">
-        <div class="boss-copy">
-          <span class="boss-ribbon">☠ BOSSFIGHT</span>
-          <h1 id="bossTitle">PIRAT KAI</h1>
-          <p id="taunt">„Na los, Inselkröte! <b>Zeig mir deine Wortkraft.</b>“</p>
-          <div class="boss-progress">
-            <span id="bossProgressText">☠ BOSS 1 / 10</span>
-            <div class="boss-dots" id="bossDots" aria-label="Bossfortschritt"></div>
-          </div>
+    <main class="battle-board battle-board-v3">
+      <section class="boss-info-strip" aria-label="Bossinformation">
+        <span class="boss-ribbon">☠ BOSSFIGHT</span>
+        <h1 id="bossTitle">PIRAT KAI</h1>
+        <p id="taunt">„Na los, Inselkröte! <b>Zeig mir deine Wortkraft.</b>“</p>
+        <div class="boss-progress">
+          <span id="bossProgressText">☠ BOSS 1 / 10</span>
+          <div class="boss-dots" id="bossDots" aria-label="Bossfortschritt"></div>
         </div>
-        <div class="boss-visual"><div class="boss-aura"></div><img class="boss-img" id="bossSprite" src={kai} alt="Pirat Kai" /></div>
       </section>
 
-      <section class="field enemy-field">
-        <div class="wood-banner" id="enemyCrewTitle">☠ PIRAT KAI · CREW</div>
-        <div class="lanes" id="enemyLanes"><div class="slot">FREI</div><div class="slot">FREI</div><div class="slot">FREI</div></div>
+      <section class="field enemy-field enemy-stage">
+        <div class="enemy-board">
+          <div class="wood-banner" id="enemyCrewTitle">☠ PIRAT KAI · CREW</div>
+          <div class="lanes" id="enemyLanes"><div class="slot">FREI</div><div class="slot">FREI</div><div class="slot">FREI</div></div>
+        </div>
+        <div class="boss-side-visual" aria-label="Aktiver Piratenboss">
+          <div class="boss-aura"></div>
+          <img class="boss-img" id="bossSprite" src={kai} alt="Pirat Kai" />
+        </div>
       </section>
 
       <section class="player-stage">
