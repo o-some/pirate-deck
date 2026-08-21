@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   verify:
+    name: Verify gameplay contract and build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
