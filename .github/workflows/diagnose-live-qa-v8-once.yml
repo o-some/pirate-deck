@@ -1,0 +1,137 @@
+name: Diagnose Live UI V8 once
+
+on:
+  push:
+    branches: [feat/live-qa-v8-20260821]
+    paths:
+      - '.github/workflows/diagnose-live-qa-v8-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install and build
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run responsive UI measurements
+        run: |
+          set -euo pipefail
+          mkdir -p .qa-root/pirate-deck docs/qa-v8
+          cp -a dist/. .qa-root/pirate-deck/
+          python3 -m http.server 4173 --directory .qa-root >/tmp/pirate-deck-qa-v8-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          const cases = [
+            {name:'iphone-se', width:375, height:667, mobile:true},
+            {name:'iphone', width:390, height:844, mobile:true},
+            {name:'iphone-large', width:430, height:932, mobile:true},
+            {name:'tablet', width:768, height:1024, mobile:true},
+            {name:'laptop', width:1024, height:768, mobile:false},
+            {name:'desktop', width:1360, height:856, mobile:false},
+          ];
+          const overlap = (a,b,pad=0) => !(a.right <= b.left+pad || a.left >= b.right-pad || a.bottom <= b.top+pad || a.top >= b.bottom-pad);
+          (async()=>{
+            const browser = await chromium.launch({headless:true});
+            const reports=[];
+            for(const test of cases){
+              const context = await browser.newContext({viewport:{width:test.width,height:test.height},isMobile:test.mobile,hasTouch:test.mobile});
+              await context.addInitScript(()=>{
+                localStorage.setItem('pirateDeckGuideSeen','1');
+                localStorage.setItem('pirate-deck-guide-seen','1');
+              });
+              const page=await context.newPage();
+              await page.goto('http://127.0.0.1:4173/pirate-deck/',{waitUntil:'networkidle'});
+              if(await page.locator('#start').isVisible().catch(()=>false)) await page.click('#start');
+              if(await page.locator('#guideStart').isVisible().catch(()=>false)) await page.click('#guideStart');
+              await page.waitForTimeout(500);
+              const data=await page.evaluate(()=>{
+                const R=s=>{const el=document.querySelector(s); if(!el)return null; const r=el.getBoundingClientRect(); return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+                const cards=[...document.querySelectorAll('.monster-card')];
+                const cardData=cards.map(card=>{
+                  const r=card.getBoundingClientRect();
+                  const get=sel=>{const el=card.querySelector(sel); if(!el)return null; const x=el.getBoundingClientRect(); return {left:x.left,top:x.top,right:x.right,bottom:x.bottom,width:x.width,height:x.height,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,font:parseFloat(getComputedStyle(el).fontSize)||0};};
+                  const img=card.querySelector('.monster-art-img');
+                  return {rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},cost:get('.monster-cost'),art:get('.monster-art-frame'),name:get('.monster-name'),effect:get('.monster-effect'),stats:get('.monster-stats'),hint:get('.monster-play-hint'),imageLoaded:!!img&&img.complete&&img.naturalWidth>0,imageFit:img?getComputedStyle(img).objectFit:null};
+                });
+                return {
+                  viewport:{width:innerWidth,height:innerHeight},
+                  scrollHeight:document.documentElement.scrollHeight,
+                  app:R('#app'), header:R('.game-header'), hud:R('.battle-hud'), bossStrip:R('.boss-info-strip'), enemy:R('.enemy-stage'), player:R('.player-stage'), hand:R('.hand'), cards:R('.cards'), end:R('#endTurn'), route:R('.boss-roster-section'),
+                  bossImg:R('#bossSprite'), tulaImg:R('#tulaSprite'), bossHealth:R('.boss-character-health'), tulaHealth:R('.tula-character-health'),
+                  cardCount:cards.length, cardData,
+                  bossObjectFit:document.querySelector('#bossSprite')?getComputedStyle(document.querySelector('#bossSprite')).objectFit:null,
+                  tulaObjectFit:document.querySelector('#tulaSprite')?getComputedStyle(document.querySelector('#tulaSprite')).objectFit:null,
+                  bodyOverflowX:getComputedStyle(document.body).overflowX
+                };
+              });
+              const issues=[];
+              if(data.cardCount!==7) issues.push(`expected 7 hand cards, got ${data.cardCount}`);
+              if(!data.end || data.end.width<100 || data.end.height<44) issues.push('end-turn target too small');
+              if(data.end && data.end.bottom>data.viewport.height+6) issues.push(`end-turn below initial viewport (${Math.round(data.end.bottom)}/${data.viewport.height})`);
+              if(data.route && data.end && data.route.top < data.end.bottom-1) issues.push('boss route overlaps active controls');
+              if(data.bossObjectFit!=='contain') issues.push(`boss object-fit is ${data.bossObjectFit}`);
+              if(data.tulaObjectFit!=='contain') issues.push(`tula object-fit is ${data.tulaObjectFit}`);
+              if(data.bossImg&&data.bossHealth&&overlap(data.bossImg,data.bossHealth,0)) issues.push('boss image overlaps boss HP');
+              if(data.tulaImg&&data.tulaHealth&&overlap(data.tulaImg,data.tulaHealth,0)) issues.push('Tula image overlaps Tula HP');
+              for(let i=0;i<data.cardData.length;i++){
+                const c=data.cardData[i];
+                if(!c.imageLoaded) issues.push(`card ${i+1} image not loaded`);
+                if(c.imageFit!=='contain') issues.push(`card ${i+1} image fit ${c.imageFit}`);
+                for(const key of ['cost','art','name','effect','stats','hint']){
+                  const x=c[key]; if(!x) {issues.push(`card ${i+1} missing ${key}`); continue;}
+                  if(x.top<c.rect.top-1||x.bottom>c.rect.bottom+1) issues.push(`card ${i+1} ${key} vertically clipped`);
+                }
+                const rows=['art','name','effect','stats','hint'].map(k=>[k,c[k]]).filter(x=>x[1]);
+                for(let j=0;j<rows.length-1;j++){
+                  const [ka,a]=rows[j],[kb,b]=rows[j+1];
+                  if(a.bottom>b.top+2) issues.push(`card ${i+1} ${ka}/${kb} overlap`);
+                }
+                if(c.name && c.name.scrollHeight>c.name.clientHeight+2) issues.push(`card ${i+1} name overflows`);
+                if(c.effect && c.effect.scrollHeight>c.effect.clientHeight+3) issues.push(`card ${i+1} effect overflows`);
+                if(c.stats && c.stats.font<0) issues.push(`card ${i+1} stats invalid`);
+              }
+              await page.screenshot({path:`docs/qa-v8/${test.name}.png`,fullPage:true});
+              reports.push({name:test.name,data,issues});
+              await context.close();
+            }
+            await browser.close();
+            fs.writeFileSync('docs/qa-v8/report.json',JSON.stringify(reports,null,2));
+            const lines=['# Live Responsive QA V8',''];
+            for(const r of reports){
+              lines.push(`## ${r.name} — ${r.data.viewport.width}×${r.data.viewport.height}`,'');
+              lines.push(`- hand cards: ${r.data.cardCount}`);
+              lines.push(`- end-turn bottom: ${r.data.end?Math.round(r.data.end.bottom):'n/a'} / viewport ${r.data.viewport.height}`);
+              lines.push(`- document height: ${r.data.scrollHeight}`);
+              lines.push(`- boss image: ${r.data.bossImg?Math.round(r.data.bossImg.width)+'×'+Math.round(r.data.bossImg.height):'n/a'}`);
+              lines.push(`- Tula image: ${r.data.tulaImg?Math.round(r.data.tulaImg.width)+'×'+Math.round(r.data.tulaImg.height):'n/a'}`);
+              if(r.issues.length){ lines.push('- ISSUES:'); for(const issue of r.issues) lines.push(`  - ${issue}`); }
+              else lines.push('- ISSUES: none');
+              lines.push('');
+            }
+            fs.writeFileSync('docs/LIVE_QA_V8_REPORT.md',lines.join('\n'));
+          })().catch(err=>{console.error(err);process.exit(1)});
+          NODE
+      - name: Commit QA report
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/LIVE_QA_V8_REPORT.md docs/qa-v8/report.json
+          git commit -m 'Record live responsive QA V8 report'
+          git push
