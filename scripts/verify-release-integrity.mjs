@@ -17,6 +17,7 @@ async function mustExist(path) {
 const requiredFiles = [
   'astro.config.mjs',
   'package.json',
+  'package-lock.json',
   '.nvmrc',
   '.gitignore',
   '.github/workflows/deploy.yml',
@@ -51,6 +52,7 @@ pass(
 );
 
 const packageJson = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
+const packageLock = JSON.parse(await readFile(resolve(root, 'package-lock.json'), 'utf8'));
 const scripts = packageJson.scripts ?? {};
 for (const scriptName of [
   'prepare:styles',
@@ -69,6 +71,10 @@ for (const scriptName of [
 }
 pass(packageJson.engines?.node === '>=22.19.0', 'package.json must require Node >=22.19.0');
 pass(packageJson.dependencies?.astro === '7.2.4', 'Astro must remain pinned to the V28 security baseline 7.2.4');
+pass(packageLock.lockfileVersion === 3, 'package-lock.json must use lockfileVersion 3');
+pass(packageLock.packages?.['']?.dependencies?.astro === '7.2.4', 'package-lock root Astro dependency must match 7.2.4');
+pass(packageLock.packages?.['']?.engines?.node === '>=22.19.0', 'package-lock root Node engine must match package.json');
+pass(packageLock.packages?.['node_modules/astro']?.version === '7.2.4', 'package-lock must resolve Astro exactly to 7.2.4');
 pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the gameplay contract verifier');
 pass(scripts['verify:pages'].includes('verify-pages-deploy.mjs'), 'verify:pages must run the Pages smoke verifier');
 pass(scripts['verify:runtime'].includes('verify:gameplay'), 'verify:runtime must include verify:gameplay');
@@ -146,7 +152,7 @@ for (const expected of [
   'actions/checkout@v5',
   'actions/setup-node@v5',
   'node-version: 22.19.0',
-  'npm install',
+  'run: npm ci',
   'npm run build',
   'actions/upload-pages-artifact@v3',
   'actions/deploy-pages@v4',
@@ -157,5 +163,6 @@ for (const expected of [
 ]) {
   pass(deployWorkflow.includes(expected), `deploy.yml lost required release step: ${expected}`);
 }
+pass(!deployWorkflow.includes('run: npm install'), 'deploy.yml must use npm ci instead of npm install');
 
 console.log(`Release integrity V24: PASS (${checks} checks).`);
