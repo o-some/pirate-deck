@@ -1,63 +1,67 @@
-/* Pirate Deck — Monster Cards V1
-   Card identity/art is independent from language questions.
+/* Pirate Deck — Monster Cards V2
+   Monster identity/art is independent from language questions.
    Correct answer: card may be played. Wrong answer: card is discarded for this boss fight. */
 (() => {
   const MONSTER_DEFS = {
     turtle: {
-      name: 'Neri', title: 'Meereskundschafter', spriteIndex: 0, type: 'WÄCHTER',
+      name: 'Neri', title: 'Meereskundschafter', image: 'card-monsters/01-neri-meereskundschafter.webp', type: 'WÄCHTER',
       cost: 2, atk: 3, hp: 4, effectKind: 'attack_bonus', effectValue: 2,
-      effectLabel: 'VORHUT', effectText: '+2 Angriff beim Ausspielen'
+      effectLabel: 'VORHUT', effectText: '+2 Angriff beim Ausspielen', emoji: '🐢'
     },
     apple: {
-      name: 'Pompi', title: 'Apfelgeist', spriteIndex: 1, type: 'GEIST',
+      name: 'Pompi', title: 'Apfelgeist', image: 'card-monsters/02-pompi-apfelgeist.webp', type: 'GEIST',
       cost: 1, atk: 2, hp: 3, effectKind: 'heal', effectValue: 2,
-      effectLabel: 'HEILUNG', effectText: 'Tula erhält +2 Leben'
+      effectLabel: 'HEILUNG', effectText: 'Tula erhält +2 Leben', emoji: '🍎'
     },
     swim: {
-      name: 'Wavi', title: 'Wellengeist', spriteIndex: 2, type: 'GEIST',
+      name: 'Wavi', title: 'Wellengeist', image: 'card-monsters/03-wavi-wellengeist.webp', type: 'GEIST',
       cost: 2, atk: 4, hp: 2, effectKind: 'rush', effectValue: 0,
-      effectLabel: 'SOFORT', effectText: 'Greift den Boss sofort an'
+      effectLabel: 'SOFORT', effectText: 'Greift den Boss sofort an', emoji: '🌊'
     },
     friend: {
-      name: 'Mira', title: 'Herzhüterin', spriteIndex: 3, type: 'WÄCHTER',
+      name: 'Mira', title: 'Herzhüterin', image: 'card-monsters/04-mira-herzhueterin.webp', type: 'WÄCHTER',
       cost: 2, atk: 2, hp: 5, effectKind: 'defense_bonus', effectValue: 2,
-      effectLabel: 'SCHUTZ', effectText: '+2 Verteidigung beim Ausspielen'
+      effectLabel: 'SCHUTZ', effectText: '+2 Verteidigung beim Ausspielen', emoji: '💚'
     },
     sunny: {
-      name: 'Soli', title: 'Sonnengeist', spriteIndex: 4, type: 'ZAUBERWESEN',
+      name: 'Soli', title: 'Sonnengeist', image: 'card-monsters/05-soli-sonnengeist.webp', type: 'ZAUBERWESEN',
       cost: 1, atk: 3, hp: 2, effectKind: 'shell', effectValue: 1,
-      effectLabel: 'BONUS', effectText: '+1 Muschel bei Erfolg'
+      effectLabel: 'BONUS', effectText: '+1 Muschel bei Erfolg', emoji: '☀️'
     },
     book: {
-      name: 'Lexi', title: 'Runengelehrter', spriteIndex: 5, type: 'MAGIER',
+      name: 'Lexi', title: 'Runengelehrter', image: 'card-monsters/06-lexi-runengelehrter.webp', type: 'MAGIER',
       cost: 2, atk: 2, hp: 3, effectKind: 'draw', effectValue: 1,
-      effectLabel: 'WISSEN', effectText: 'Ziehe nach dem Ausspielen 1 Karte'
+      effectLabel: 'WISSEN', effectText: 'Ziehe nach dem Ausspielen 1 Karte', emoji: '📘'
     },
     run: {
-      name: 'Krax', title: 'Sprintkrabbler', spriteIndex: 6, type: 'STÜRMER',
+      name: 'Krax', title: 'Sprintkrabbler', image: 'card-monsters/07-krax-sprintkrabbler.webp', type: 'STÜRMER',
       cost: 2, atk: 4, hp: 2, effectKind: 'burst', effectValue: 2,
-      effectLabel: 'ANSTURM', effectText: '+2 direkter Boss-Schaden'
+      effectLabel: 'ANSTURM', effectText: '+2 direkter Boss-Schaden', emoji: '🦀'
     },
     island: {
-      name: 'Moa', title: 'Inselwächter', spriteIndex: 7, type: 'TITAN',
+      name: 'Moa', title: 'Inselwächter', image: 'card-monsters/08-moa-inselwaechter.webp', type: 'TITAN',
       cost: 3, atk: 2, hp: 6, effectKind: 'defense_bonus', effectValue: 3,
-      effectLabel: 'BASTION', effectText: '+3 Verteidigung beim Ausspielen'
+      effectLabel: 'BASTION', effectText: '+3 Verteidigung beim Ausspielen', emoji: '🛡️'
     }
   };
 
   const QUESTION_POOL = [
-    { id:'q-house',  de:'Haus',       correct:'house',  wrong:['horse','mouse'] },
-    { id:'q-water',  de:'Wasser',     correct:'water',  wrong:['window','winter'] },
-    { id:'q-eat',    de:'essen',      correct:'eat',    wrong:['read','sleep'] },
-    { id:'q-fast',   de:'schnell',    correct:'fast',   wrong:['slow','small'] },
-    { id:'q-brave',  de:'mutig',      correct:'brave',  wrong:['tired','quiet'] },
-    { id:'q-speak',  de:'sprechen',   correct:'speak',  wrong:['swim','stand'] },
-    { id:'q-school', de:'Schule',     correct:'school', wrong:['street','shop'] },
-    { id:'q-night',  de:'Nacht',      correct:'night',  wrong:['morning','light'] },
-    { id:'q-tree',   de:'Baum',       correct:'tree',   wrong:['train','door'] },
-    { id:'q-happy',  de:'glücklich',  correct:'happy',  wrong:['hungry','heavy'] },
-    { id:'q-run',    de:'laufen',     correct:'run',    wrong:['write','drink'] },
-    { id:'q-book',   de:'Buch',       correct:'book',   wrong:['boat','bread'] }
+    { id:'q-house',   de:'Haus',       correct:'house',  wrong:['horse','mouse'] },
+    { id:'q-water',   de:'Wasser',     correct:'water',  wrong:['window','winter'] },
+    { id:'q-eat',     de:'essen',      correct:'eat',    wrong:['read','sleep'] },
+    { id:'q-fast',    de:'schnell',    correct:'fast',   wrong:['slow','small'] },
+    { id:'q-brave',   de:'mutig',      correct:'brave',  wrong:['tired','quiet'] },
+    { id:'q-speak',   de:'sprechen',   correct:'speak',  wrong:['swim','stand'] },
+    { id:'q-school',  de:'Schule',     correct:'school', wrong:['street','shop'] },
+    { id:'q-night',   de:'Nacht',      correct:'night',  wrong:['morning','light'] },
+    { id:'q-tree',    de:'Baum',       correct:'tree',   wrong:['train','door'] },
+    { id:'q-happy',   de:'glücklich',  correct:'happy',  wrong:['hungry','heavy'] },
+    { id:'q-run',     de:'laufen',     correct:'run',    wrong:['write','drink'] },
+    { id:'q-book',    de:'Buch',       correct:'book',   wrong:['boat','bread'] },
+    { id:'q-friend',  de:'Freund',     correct:'friend', wrong:['family','father'] },
+    { id:'q-sun',     de:'Sonne',      correct:'sun',    wrong:['moon','star'] },
+    { id:'q-food',    de:'Essen',      correct:'food',   wrong:['foot','room'] },
+    { id:'q-small',   de:'klein',      correct:'small',  wrong:['strong','slow'] }
   ];
 
   let lastQuestionId = null;
@@ -78,14 +82,14 @@
     return question;
   }
 
-  /* Mutate existing card objects in-place so every existing state/hand reference stays valid. */
+  /* Mutate existing card objects in-place so existing game state and hand references remain valid. */
   CARD_POOL.forEach(card => {
     const def = MONSTER_DEFS[card.id];
     if(!def) return;
     Object.assign(card, {
       name: def.name,
       monsterTitle: def.title,
-      spriteIndex: def.spriteIndex,
+      monsterImage: def.image,
       cardType: def.type,
       cost: def.cost,
       atk: def.atk,
@@ -94,17 +98,21 @@
       effectValue: def.effectValue,
       effectLabel: def.effectLabel,
       effectText: def.effectText,
+      monsterEmoji: def.emoji,
       text: `${def.effectLabel} · ${def.effectText}`
     });
   });
 
-  function spritePosition(index){
-    const col=index%4;
-    const row=Math.floor(index/4);
-    return {
-      x:['0%','33.333%','66.667%','100%'][col],
-      y:row===0?'0%':'100%'
-    };
+  function artMarkup(card){
+    return `<span class="monster-art-frame"><img class="monster-art-img" src="${card.monsterImage}" alt="${card.name}, ${card.monsterTitle}" loading="eager" decoding="async"><span class="monster-art-fallback" aria-hidden="true">${card.monsterEmoji||'🐢'}</span></span>`;
+  }
+
+  function installImageFallback(button){
+    const img=button.querySelector('.monster-art-img');
+    if(!img) return;
+    const markFailed=()=>button.classList.add('monster-image-failed');
+    img.addEventListener('error',markFailed,{once:true});
+    if(img.complete && img.naturalWidth===0) markFailed();
   }
 
   function decorateHandCards(){
@@ -114,41 +122,45 @@
     [...host.querySelectorAll('.card')].forEach((button,index)=>{
       const card=state.hand[index];
       if(!card) return;
-      const pos=spritePosition(card.spriteIndex ?? 0);
       const unaffordable=card.cost>state.energy;
 
-      button.classList.add('monster-card');
-      button.classList.toggle('disabled',unaffordable);
+      button.className=`card monster-card monster-${card.id}${unaffordable?' disabled':''}`;
       button.disabled=unaffordable || state.playerHp<=0 || state.bossHp<=0;
       button.dataset.monster=card.id;
-      button.setAttribute('aria-label',`${card.name}, ${card.monsterTitle}. Kosten ${card.cost} Wellenkraft. Angriff ${card.atk}. Verteidigung ${card.hp}. Antippen für eine Sprachfrage.`);
+      button.setAttribute('aria-label',`${card.name}, ${card.monsterTitle}. Kosten ${card.cost} Wellenkraft. Angriff ${card.atk}. Verteidigung ${card.hp}. Antippen für eine unabhängige Sprachfrage.`);
       button.innerHTML=`
-        <span class="cost monster-cost" aria-label="${card.cost} Wellenkraft"><span class="cost-wave" aria-hidden="true">🌊</span><strong>${card.cost}</strong></span>
+        <span class="monster-cost" aria-label="${card.cost} Wellenkraft"><span aria-hidden="true">🌊</span><strong>${card.cost}</strong></span>
         <span class="monster-type">${card.cardType}</span>
-        <span class="monster-art-frame" aria-hidden="true"><span class="monster-sprite" style="--sprite-x:${pos.x};--sprite-y:${pos.y}"></span></span>
+        ${artMarkup(card)}
         <span class="monster-name"><strong>${card.name}</strong><small>${card.monsterTitle}</small></span>
         <span class="monster-effect"><small>${card.effectLabel}</small><span>${card.effectText}</span></span>
-        <span class="monster-stats">
-          <b class="monster-attack"><span>⚔</span><strong>${card.atk}</strong><small>ANGRIFF</small></b>
-          <b class="monster-defense"><span>🛡</span><strong>${card.hp}</strong><small>VERTEIDIGUNG</small></b>
+        <span class="monster-stats" aria-label="Kampfwerte">
+          <b class="monster-attack"><span aria-hidden="true">⚔</span><strong>${card.atk}</strong><small>ANGRIFF</small></b>
+          <b class="monster-defense"><span aria-hidden="true">🛡</span><strong>${card.hp}</strong><small>VERTEIDIGUNG</small></b>
         </span>
         <span class="monster-play-hint">ANTIPPEN · FRAGE LÖSEN</span>
       `;
+      installImageFallback(button);
     });
+  }
+
+  function unitMarkup(card){
+    const image=card.monsterImage || MONSTER_DEFS[card.id]?.image || '';
+    return `<div class="unit-card-inner">${image?`<img class="unit-monster-img" src="${image}" alt="" loading="lazy">`:''}<div class="unit-card-copy"><b>${card.name}</b><small>${card.monsterTitle||''}</small><span><em>⚔ ${card.atk}</em><em>🛡 ${card.hp}</em></span></div></div>`;
   }
 
   function decorateBattleSlots(){
     const player=document.getElementById('playerLanes');
     if(player && state?.field){
       player.innerHTML=[0,1,2].map(i=>state.field[i]
-        ? `<div class="slot unit monster-unit"><div><b>${state.field[i].name}</b><small>${state.field[i].monsterTitle||''}</small><span>⚔ ${state.field[i].atk} · 🛡 ${state.field[i].hp}</span></div></div>`
-        : '<div class="slot">DEIN PLATZ</div>').join('');
+        ? `<div class="slot unit monster-unit">${unitMarkup(state.field[i])}</div>`
+        : '<div class="slot empty-slot"><span>DEIN PLATZ</span><i aria-hidden="true">⚓</i></div>').join('');
     }
     const enemy=document.getElementById('enemyLanes');
     if(enemy && state?.enemy){
       enemy.innerHTML=[0,1,2].map(i=>state.enemy[i]
-        ? `<div class="slot unit enemy-unit"><div><b>🏴‍☠️ ${state.enemy[i].name}</b><span>⚔ ${state.enemy[i].atk} · 🛡 ${state.enemy[i].hp}</span></div></div>`
-        : '<div class="slot">FREI</div>').join('');
+        ? `<div class="slot unit enemy-unit"><div class="unit-card-copy"><b>🏴‍☠️ ${state.enemy[i].name}</b><span><em>⚔ ${state.enemy[i].atk}</em><em>🛡 ${state.enemy[i].hp}</em></span></div></div>`
+        : '<div class="slot empty-slot enemy-empty"><span>FREI</span></div>').join('');
     }
   }
 
@@ -167,8 +179,8 @@
     const answers=document.getElementById('answers');
     const mastery=document.getElementById('mastery');
     if(title) title.textContent=`Was bedeutet „${q.de}“ auf Englisch?`;
-    if(copy) copy.textContent=`Die Frage ist unabhängig von ${card.name}. Richtig = ${card.name} darf gespielt werden. Falsch = die Karte geht verloren.`;
-    if(mastery) mastery.textContent=`🌊 Einsatz: ${card.cost} Wellenkraft · ⚔ ${card.atk} Angriff · 🛡 ${card.hp} Verteidigung`;
+    if(copy) copy.textContent=`Diese Sprachfrage ist unabhängig von ${card.name}. Nur eine richtige Antwort erlaubt das Ausspielen.`;
+    if(mastery) mastery.innerHTML=`<b>${card.name}</b> · 🌊 ${card.cost} · ⚔ ${card.atk} · 🛡 ${card.hp} <span class="question-risk">Falsch = Karte verloren</span>`;
     if(answers){
       answers.innerHTML='';
       shuffleLocal([q.correct,...q.wrong]).forEach(option=>{
@@ -227,17 +239,9 @@
         hitBoss();
       }
 
-      if(card.effectKind==='rush' && state.bossHp>0){
-        state.bossHp-=atk;
-        hitBoss();
-      }
-      if(card.effectKind==='burst' && state.bossHp>0){
-        state.bossHp-=(card.effectValue||0);
-        hitBoss();
-      }
-      if(card.effectKind==='draw'){
-        draw();
-      }
+      if(card.effectKind==='rush' && state.bossHp>0){state.bossHp-=atk;hitBoss();}
+      if(card.effectKind==='burst' && state.bossHp>0){state.bossHp-=(card.effectValue||0);hitBoss();}
+      if(card.effectKind==='draw') draw();
 
       state.bossHp=Math.max(0,state.bossHp);
       document.getElementById('learn')?.classList.remove('open');
@@ -249,7 +253,6 @@
     },700);
   }
 
-  /* Initial state was created before this enhancement loaded; mutate references and repaint once. */
   decorateHandCards();
   decorateBattleSlots();
 })();
