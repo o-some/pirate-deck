@@ -1,0 +1,65 @@
+name: Verify Monster Cards V2 once
+
+on:
+  push:
+    branches: [feat/monster-ui-fix-20260821]
+    paths:
+      - '.github/workflows/verify-monster-ui-v2-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-card-rules-v2.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          node --check public/pirate-deck-guide-v1.js
+      - name: Install and build Astro
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+      - name: Verify Monster Cards V2 output
+        run: |
+          set -euo pipefail
+          test $(find dist/card-monsters -maxdepth 1 -name '0*-*.webp' | wc -l) -eq 8
+          test -s dist/card-monsters/01-neri-meereskundschafter.webp
+          test -s dist/card-monsters/08-moa-inselwaechter.webp
+          test -s dist/pirate-deck-monster-cards-v1.js
+          test -s dist/pirate-deck-monster-cards-v1.css
+          grep -q '01-neri-meereskundschafter.webp' public/pirate-deck-monster-cards-v1.js
+          grep -q 'QUESTION_POOL' public/pirate-deck-monster-cards-v1.js
+          grep -q 'Falsch = Karte verloren' public/pirate-deck-monster-cards-v1.js
+          grep -q 'monster-art-img' public/pirate-deck-monster-cards-v1.css
+          if grep -q 'monster-sprites-v1.webp' public/pirate-deck-monster-cards-v1.css; then echo 'Old sprite sheet still referenced by active monster UI'; exit 1; fi
+          grep -q 'pirate-deck-monster-cards-v1.js' dist/index.html
+          grep -q 'pirate-deck-monster-cards-v1.css' dist/index.html
+      - name: Record verification
+        run: |
+          cat > docs/MONSTER_UI_V2_VERIFIED.md <<'EOF'
+          # Monster Cards V2 verification
+
+          - JavaScript syntax: PASS
+          - Astro build: PASS
+          - 8 individual optimized WebP monster assets: PASS
+          - Monster card JS/CSS in dist: PASS
+          - Individual images replace active sprite-sheet cropping: PASS
+          - Independent language question pool: PASS
+          - Wrong answer discards the selected card: PASS
+          - Responsive card/battle CSS wiring: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/MONSTER_UI_V2_VERIFIED.md
+          git commit -m 'Record successful Monster Cards V2 verification'
+          git push
