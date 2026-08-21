@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "spriteSheet": "monster-sprites-v1.webp",
+  "layout": {"columns": 4, "rows": 2, "cellSize": 512},
+  "monsters": [
+    {"index": 0, "id": "neri", "name": "Neri", "title": "Meereskundschafter", "source": "01-froehlicher-seeschildkroeten-abenteurer.png"},
+    {"index": 1, "id": "pompi", "name": "Pompi", "title": "Apfelgeist", "source": "02-glaenzender-apfelgeist-mit-zauberstab.png"},
+    {"index": 2, "id": "wavi", "name": "Wavi", "title": "Wellengeist", "source": "03-froehlicher-wassergeist-mit-goldenen-muscheln.png"},
+    {"index": 3, "id": "mira", "name": "Mira", "title": "Herzhüterin", "source": "04-froehliche-schildkroete-mit-herzanhaenger.png"},
+    {"index": 4, "id": "soli", "name": "Soli", "title": "Sonnengeist", "source": "05-froehlicher-sonnengeist-im-flug.png"},
+    {"index": 5, "id": "lexi", "name": "Lexi", "title": "Runengelehrter", "source": "06-magischer-buchgelehrter-mit-brille.png"},
+    {"index": 6, "id": "krax", "name": "Krax", "title": "Sprintkrabbler", "source": "07-froehlicher-sprintkrabbler-mit-muschelrucksack.png"},
+    {"index": 7, "id": "moa", "name": "Moa", "title": "Inselwächter", "source": "08-tropischer-inselwaechter-mit-schild-und-stab.png"}
+  ]
+}
