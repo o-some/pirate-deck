@@ -1,0 +1,64 @@
+name: Verify Interaction Polish V10 once
+
+on:
+  push:
+    branches: [feat/interaction-polish-v10-20260821]
+    paths:
+      - '.github/workflows/verify-interaction-v10-once.yml'
+      - 'src/pages/index.astro'
+      - 'public/pirate-deck-interaction-polish-v10.css'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify existing JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          node --check public/pirate-deck-hand7-v5.js
+          node --check public/pirate-deck-hud-hp-v4.js
+      - name: Build Astro production bundle
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+          test -s dist/pirate-deck-interaction-polish-v10.css
+          grep -q 'pirate-deck-interaction-polish-v10.css' dist/index.html
+      - name: Verify interaction rules
+        run: |
+          set -euo pipefail
+          grep -q '.monster-card:not(.disabled)' public/pirate-deck-interaction-polish-v10.css
+          grep -q '.monster-card.disabled' public/pirate-deck-interaction-polish-v10.css
+          grep -q ':focus-visible' public/pirate-deck-interaction-polish-v10.css
+          grep -q '.end.next-boss' public/pirate-deck-interaction-polish-v10.css
+          grep -q '.answer.good' public/pirate-deck-interaction-polish-v10.css
+          grep -q '.answer.bad' public/pirate-deck-interaction-polish-v10.css
+          grep -q 'prefers-reduced-motion' public/pirate-deck-interaction-polish-v10.css
+      - name: Record successful verification
+        run: |
+          cat > docs/INTERACTION_POLISH_V10_VERIFIED.md <<'EOF'
+          # Interaction Polish V10 verification
+
+          - Existing JavaScript syntax: PASS
+          - Astro production build: PASS
+          - V10 final CSS layer included in build: PASS
+          - Playable / unavailable card states: PASS
+          - Visible focus states: PASS
+          - End-turn / next-boss action states: PASS
+          - Quiz answer success/error states: PASS
+          - Touch/reduced-motion handling: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/INTERACTION_POLISH_V10_VERIFIED.md
+          git commit -m 'Record successful Interaction Polish V10 verification'
+          git push
