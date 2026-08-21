@@ -10,3 +10,4 @@
 - Seven-card mobile hand uses larger swipe cards: PASS
 - Card name/effect/combat rows remain separated: PASS
 - Boss route remains outside the active play surface: PASS
+- Released to main: YES
