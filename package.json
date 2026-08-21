@@ -9,7 +9,8 @@
     "prepare:runtime": "npm run prepare:styles && npm run prepare:scripts",
     "verify:sources": "node scripts/verify-runtime-sources.mjs",
     "verify:styles": "node scripts/verify-style-sources.mjs",
-    "verify:runtime": "npm run verify:sources && npm run verify:styles",
+    "verify:assets": "node scripts/verify-asset-integrity.mjs",
+    "verify:runtime": "npm run verify:sources && npm run verify:styles && npm run verify:assets",
     "dev": "npm run prepare:runtime && npm run verify:runtime && astro dev",
     "build": "npm run prepare:runtime && npm run verify:runtime && astro build",
     "preview": "astro preview"
