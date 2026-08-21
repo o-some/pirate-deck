@@ -22,6 +22,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
   <link rel="stylesheet" href={`${base}pirate-deck-card-ui-v2.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-hand-premium-v3.css`} />
   <link rel="stylesheet" href={`${base}pirate-deck-guide-v1.css`} />
+  <link rel="stylesheet" href={`${base}pirate-deck-monster-cards-v1.css`} />
 </head>
 <body>
   <div class="app" id="app">
@@ -88,7 +89,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
     </div>
 
     <section class="hand">
-      <div class="hand-title"><small>DEINE HAND</small><small>ANTIPPEN → ÜBERSETZEN</small></div>
+      <div class="hand-title"><small>DEINE HAND</small><small>ANTIPPEN → FRAGE LÖSEN</small></div>
       <div class="cards" id="cards"></div>
       <div class="footer-actions"><button class="end" id="endTurn">⚔ ZUG BEENDEN</button></div>
     </section>
@@ -106,7 +107,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
       <h2 id="questionTitle">Was bedeutet …?</h2>
       <p id="questionCopy"></p>
       <div class="answers" id="answers"></div>
-      <div class="mastery" id="mastery">Richtig = Karte wird gespielt. Falsch = Karte geht für diesen Bosskampf verloren.</div>
+      <div class="mastery" id="mastery">Richtig = Karte darf ins Spiel. Falsch = Karte geht für diesen Bosskampf verloren.</div>
     </div>
   </div>
 
@@ -116,7 +117,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
       <div class="intro-hero"><img src={tula} alt="Tula" /><img id="introBossSprite" src={kai} alt="Pirat Kai" /></div>
       <span class="boss-ribbon intro-ribbon">☠ BOSS 1 / 10</span>
       <h2 id="introBossTitle">Pirat Kai wartet.</h2>
-      <p>Baue deine Crew, löse Sprachkarten und besiege die Piratenbosse. Richtige Antworten verstärken deine Karten.</p>
+      <p>Beschwöre deine Monster-Crew, löse unabhängige Sprachfragen und besiege die Piratenbosse.</p>
       <button id="start">⚔ DUELL STARTEN</button>
       <span class="note">Deutsch → Englisch · Mobile Battle</span>
     </div>
@@ -126,23 +127,23 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
     <div class="guide-card">
       <div class="guide-kicker">⚓ SPIELANLEITUNG</div>
       <h2 id="guideTitle">So funktioniert Pirate Deck</h2>
-      <p class="guide-lead">Besiege den Piratenboss mit deiner Crew – aber jede Karte muss zuerst sprachlich gemeistert werden.</p>
+      <p class="guide-lead">Deine Monsterkarten und die Sprachfragen sind getrennt: Du wählst zuerst dein Monster, dann entscheidet eine Sprachfrage, ob es ins Spiel darf.</p>
       <div class="guide-grid">
         <section class="guide-step">
-          <div class="guide-step-head"><span class="guide-icon">🃏</span><strong>1. Karte wählen</strong></div>
-          <p>Tippe unten eine Karte an. Die türkise Anzeige wie <span class="guide-cost-demo">🌊 2</span> zeigt, wie viel <b>Wellenkraft</b> sie kostet.</p>
+          <div class="guide-step-head"><span class="guide-icon">🃏</span><strong>1. Monster wählen</strong></div>
+          <p>Tippe unten eine Monsterkarte an. Die türkise Anzeige wie <span class="guide-cost-demo">🌊 2</span> zeigt, wie viel <b>Wellenkraft</b> sie kostet.</p>
         </section>
         <section class="guide-step">
-          <div class="guide-step-head"><span class="guide-icon">💬</span><strong>2. Übersetzen</strong></div>
-          <p>Wähle die richtige Übersetzung. <b>Richtig:</b> Die Karte wird gespielt und erhält ihren Bonus. <b>Falsch:</b> Die Karte ist für diesen Bosskampf verloren.</p>
+          <div class="guide-step-head"><span class="guide-icon">💬</span><strong>2. Frage lösen</strong></div>
+          <p>Die Frage ist <b>unabhängig vom Monster</b>. Richtig: Die Karte darf ins Spiel. Falsch: Die Karte und ihre Wellenkraft sind für diesen Bosskampf verloren.</p>
         </section>
         <section class="guide-step">
           <div class="guide-step-head"><span class="guide-icon">🌊</span><strong>3. Wellenkraft</strong></div>
           <p>Du startest mit <b>3 / 3 Wellenkraft</b>. Jede Karte verbraucht ihren angezeigten Wert. Nach „Zug beenden“ wird sie aufgefüllt und dein Maximum steigt schrittweise.</p>
         </section>
         <section class="guide-step">
-          <div class="guide-step-head"><span class="guide-icon">⚔</span><strong>4. Zug beenden</strong></div>
-          <p>Deine ausgespielte Crew greift den Boss an. Danach schlägt die Piratencrew zurück, du ziehst nach und der nächste Zug beginnt.</p>
+          <div class="guide-step-head"><span class="guide-icon">⚔</span><strong>4. Kampfwerte</strong></div>
+          <p><b>⚔ Angriff</b> bestimmt deinen Schaden. <b>🛡 Verteidigung</b> zeigt, wie robust dein Monster ist. Beim Zugende greift deine Crew den Boss an.</p>
         </section>
       </div>
       <div class="guide-warning">🎯 Ziel: Boss-Leben auf 0 bringen, bevor Tulas 20 Leben aufgebraucht sind. Fehler kosten echte Karten – also lieber genau hinschauen.</div>
@@ -155,6 +156,7 @@ const tula = `${assetRoot}/assets/creative/tula_neutral_front.webp`;
 
   <script src={`${base}pirate-deck.js`} defer></script>
   <script src={`${base}pirate-deck-card-rules-v2.js`} defer></script>
+  <script src={`${base}pirate-deck-monster-cards-v1.js`} defer></script>
   <script src={`${base}pirate-deck-asset-guard.js`} defer></script>
   <script src={`${base}pirate-deck-info-toast.js`} defer></script>
   <script src={`${base}pirate-deck-guide-v1.js`} defer></script>
