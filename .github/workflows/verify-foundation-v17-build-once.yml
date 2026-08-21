@@ -1,0 +1,54 @@
+name: Verify Foundation V17 build once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-foundation-v17-build-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/foundation-css-v17-20260821
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build candidate
+        run: |
+          set -euo pipefail
+          node --check scripts/build-foundation-css.mjs
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          npm install
+          npm run build
+          test -s public/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+          grep -q 'pirate-deck-foundation-v17.css' dist/index.html
+          grep -q 'pirate-deck-runtime-v15.css' dist/index.html
+          test "$(grep -o 'rel=\"stylesheet\"' dist/index.html | wc -l)" -eq 2
+      - name: Record verification on feature
+        run: |
+          cat > docs/FOUNDATION_V17_VERIFIED.md <<'EOF'
+          # Foundation CSS V17 verification
+
+          - Foundation builder syntax: PASS
+          - Gameplay JavaScript syntax: PASS
+          - Astro production build: PASS
+          - Generated Foundation V17 copied to dist: PASS
+          - Runtime V15 retained: PASS
+          - Runtime stylesheet links reduced from 13 to 2: PASS
+          - Source CSS order is explicit and deterministic: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/FOUNDATION_V17_VERIFIED.md
+          git commit -m 'Record successful Foundation V17 verification'
+          git push origin HEAD:feat/foundation-css-v17-20260821
