@@ -1,0 +1,45 @@
+name: Verify Monster Cards V1 once
+
+on:
+  push:
+    branches:
+      - feat/monster-cards-v1b-20260821
+    paths:
+      - '.github/workflows/verify-monster-cards-once.yml'
+      - 'src/pages/index.astro'
+      - 'public/pirate-deck-monster-cards-v1.js'
+      - 'public/pirate-deck-monster-cards-v1.css'
+      - 'public/card-monsters/monster-sprites-v1.webp'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-card-rules-v2.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          node --check public/pirate-deck-guide-v1.js
+      - name: Install and build Astro
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+      - name: Verify built monster assets and wiring
+        run: |
+          set -euo pipefail
+          test -s dist/card-monsters/monster-sprites-v1.webp
+          test -s dist/pirate-deck-monster-cards-v1.js
+          test -s dist/pirate-deck-monster-cards-v1.css
+          grep -q 'pirate-deck-monster-cards-v1.js' dist/index.html
+          grep -q 'pirate-deck-monster-cards-v1.css' dist/index.html
+          grep -q 'QUESTION_POOL' public/pirate-deck-monster-cards-v1.js
+          grep -q 'Karte verloren' public/pirate-deck-monster-cards-v1.js
+          grep -q 'monster-sprites-v1.webp' public/pirate-deck-monster-cards-v1.css
+          echo 'Monster Cards V1 verification: PASS'
