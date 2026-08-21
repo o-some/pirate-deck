@@ -40,9 +40,7 @@ const indexSource = await readFile(resolve(root, 'src/pages/index.astro'), 'utf8
 const directRuntimeScripts = [...coreScripts, generatedUiBundle];
 
 for (const file of directRuntimeScripts) {
-  const needle = `pirate-deck/${file}`;
-  const fallbackNeedle = file;
-  const count = indexSource.split(fallbackNeedle).length - 1;
+  const count = indexSource.split(file).length - 1;
   if (count !== 1) {
     console.error(`Expected exactly one runtime reference to ${file}, found ${count}.`);
     process.exit(1);
@@ -50,7 +48,7 @@ for (const file of directRuntimeScripts) {
 }
 
 for (const file of uiSourceScripts) {
-  if (indexSource.includes(`<script src={\`${'${base}'}${file}\`} defer></script>`)) {
+  if (indexSource.includes(file)) {
     console.error(`UI source script must not be loaded directly: ${file}`);
     process.exit(1);
   }
