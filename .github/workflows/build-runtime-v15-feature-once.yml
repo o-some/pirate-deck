@@ -1,0 +1,62 @@
+name: Build Runtime V15 feature once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-runtime-v15-feature-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-feature:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/runtime-selfcontained-v15-20260821
+          fetch-depth: 0
+      - name: Build self-contained V15 CSS
+        run: |
+          set -euo pipefail
+          {
+            printf '/* Pirate Deck — Self-contained Runtime CSS V15\n   Exact concatenation: HUD V4 → Hand V5 → Mobile V6 → Polish V7 → Release V12. No visual changes intended. */\n\n'
+            cat public/pirate-deck-hud-hp-v4.css
+            printf '\n\n'
+            cat public/pirate-deck-hand7-v5.css
+            printf '\n\n'
+            cat public/pirate-deck-mobile-balance-v6.css
+            printf '\n\n'
+            cat public/pirate-deck-final-polish-v7.css
+            printf '\n\n'
+            cat public/pirate-deck-release-v12.css
+          } > public/pirate-deck-runtime-v15.css
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/index.astro')
+          text=p.read_text()
+          old='  <link rel="stylesheet" href={`${base}pirate-deck-runtime-v14.css`} />\n'
+          new='  <link rel="stylesheet" href={`${base}pirate-deck-runtime-v15.css`} />\n'
+          if old not in text:
+              raise SystemExit('V14 runtime link missing')
+          p.write_text(text.replace(old,new,1))
+          PY
+
+          test "$(grep -c '^@import' public/pirate-deck-runtime-v15.css || true)" -eq 0
+          grep -q 'HUD / Character HP V4' public/pirate-deck-runtime-v15.css
+          grep -q 'Hand 7 / Card Readability V5' public/pirate-deck-runtime-v15.css
+          grep -q 'Mobile / Viewport Balance V6' public/pirate-deck-runtime-v15.css
+          grep -q 'Final Cross-Device Polish V7' public/pirate-deck-runtime-v15.css
+          grep -q 'Consolidated Release CSS V12' public/pirate-deck-runtime-v15.css
+          test "$(grep -c 'pirate-deck-runtime-v15.css' src/pages/index.astro)" -eq 1
+          test "$(grep -c 'pirate-deck-runtime-v14.css' src/pages/index.astro)" -eq 0
+
+      - name: Commit V15 candidate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/pirate-deck-runtime-v15.css src/pages/index.astro
+          git commit -m 'Build self-contained runtime CSS V15'
+          git push origin HEAD:feat/runtime-selfcontained-v15-20260821
