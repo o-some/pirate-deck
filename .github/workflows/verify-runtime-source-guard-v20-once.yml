@@ -1,0 +1,88 @@
+name: Verify Runtime Source Guard V20 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-runtime-source-guard-v20-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout baseline
+        uses: actions/checkout@v4
+        with:
+          ref: 38b282bea1b167d26b5401877e75d79855e7d6e1
+          path: baseline
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          ref: feat/runtime-source-guard-v20-20260821
+          path: candidate
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build baseline
+        working-directory: baseline
+        run: |
+          npm install
+          npm run build
+      - name: Verify candidate guard and build
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          node --check scripts/verify-runtime-sources.mjs
+          npm install
+          npm run build
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+          test -s dist/pirate-deck-ui-runtime-v18.js
+      - name: Verify guard rejects an orphan JS source
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          printf 'console.log("orphan guard test");\n' > public/orphan-test.js
+          if node scripts/verify-runtime-sources.mjs; then
+            echo 'Guard incorrectly accepted orphan-test.js'
+            exit 1
+          fi
+          rm public/orphan-test.js
+          node scripts/verify-runtime-sources.mjs
+      - name: Verify runtime output unchanged
+        run: |
+          set -euo pipefail
+          cmp baseline/dist/index.html candidate/dist/index.html
+          cmp baseline/dist/pirate-deck-foundation-v17.css candidate/dist/pirate-deck-foundation-v17.css
+          cmp baseline/dist/pirate-deck-runtime-v15.css candidate/dist/pirate-deck-runtime-v15.css
+          cmp baseline/dist/pirate-deck-ui-runtime-v18.js candidate/dist/pirate-deck-ui-runtime-v18.js
+          for f in pirate-deck.js pirate-deck-card-rules-v2.js pirate-deck-monster-cards-v1.js; do
+            cmp "baseline/dist/$f" "candidate/dist/$f"
+          done
+      - name: Record verification on feature
+        working-directory: candidate
+        run: |
+          cat > docs/RUNTIME_SOURCE_GUARD_V20_VERIFIED.md <<'EOF'
+          # Runtime Source Guard V20 verification
+
+          - Existing JavaScript source audit: PASS
+          - Orphan JavaScript sources currently present: NONE
+          - Guard syntax: PASS
+          - Clean source set accepted: PASS
+          - Synthetic orphan JavaScript rejected: PASS
+          - Astro production build: PASS
+          - Runtime index.html unchanged: PASS
+          - Foundation V17 unchanged: PASS
+          - Runtime V15 unchanged: PASS
+          - UI Runtime V18 unchanged: PASS
+          - Core gameplay/card/monster JavaScript unchanged: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/RUNTIME_SOURCE_GUARD_V20_VERIFIED.md
+          git commit -m 'Record Runtime Source Guard V20 verification'
+          git push origin HEAD:feat/runtime-source-guard-v20-20260821
