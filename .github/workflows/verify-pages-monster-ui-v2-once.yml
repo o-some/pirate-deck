@@ -1,0 +1,79 @@
+name: Verify Monster UI V2 Pages Once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-pages-monster-ui-v2-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: monster-ui-v2-pages-verify
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install and build Astro
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+      - name: Verify production monster assets and runtime
+        run: |
+          set -euo pipefail
+          test $(find dist/card-monsters -maxdepth 1 -name '0*-*.webp' | wc -l) -eq 8
+          test -s dist/card-monsters/01-neri-meereskundschafter.webp
+          test -s dist/card-monsters/08-moa-inselwaechter.webp
+          test -s dist/pirate-deck-monster-cards-v1.js
+          test -s dist/pirate-deck-monster-cards-v1.css
+          grep -q '01-neri-meereskundschafter.webp' dist/pirate-deck-monster-cards-v1.js
+          grep -q 'QUESTION_POOL' dist/pirate-deck-monster-cards-v1.js
+          grep -q 'monster-art-img' dist/pirate-deck-monster-cards-v1.css
+          grep -q 'pirate-deck-monster-cards-v1.js' dist/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified production build
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - name: Record successful production deployment
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          cat > docs/MONSTER_UI_V2_PAGES_VERIFIED.md <<EOF
+          # Monster UI V2 Pages verification
+
+          - Astro production build: PASS
+          - 8 individual optimized monster assets in build: PASS
+          - Monster runtime JS/CSS in build: PASS
+          - Independent language question pool in build: PASS
+          - GitHub Pages deployment: PASS
+          - Release SHA: \`$RELEASE_SHA\`
+          - Page URL: $PAGE_URL
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/MONSTER_UI_V2_PAGES_VERIFIED.md
+          git commit -m 'Record successful Monster UI V2 Pages deployment'
+          git push
