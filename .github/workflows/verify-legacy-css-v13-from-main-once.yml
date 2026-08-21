@@ -1,0 +1,77 @@
+name: Verify Legacy CSS V13 from main once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-legacy-css-v13-from-main-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout baseline
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          ref: feat/legacy-css-cleanup-v13-20260821
+          path: candidate
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build baseline
+        working-directory: baseline
+        run: |
+          npm install
+          npm run build
+      - name: Build candidate and verify legacy removal
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          npm install
+          npm run build
+          test -s dist/pirate-deck-release-v12.css
+          grep -q 'pirate-deck-release-v12.css' dist/index.html
+          test ! -e public/pirate-deck-live-qa-fixes-v8.css
+          test ! -e public/pirate-deck-top-hud-v9.css
+          test ! -e public/pirate-deck-interaction-polish-v10.css
+          test ! -e public/pirate-deck-battlefield-v11.css
+      - name: Verify active runtime byte parity
+        run: |
+          set -euo pipefail
+          cmp baseline/dist/index.html candidate/dist/index.html
+          cmp baseline/dist/pirate-deck-release-v12.css candidate/dist/pirate-deck-release-v12.css
+          cmp baseline/dist/pirate-deck.js candidate/dist/pirate-deck.js
+          cmp baseline/dist/pirate-deck-monster-cards-v1.js candidate/dist/pirate-deck-monster-cards-v1.js
+          cmp baseline/dist/pirate-deck-hud-hp-v4.js candidate/dist/pirate-deck-hud-hp-v4.js
+          cmp baseline/dist/pirate-deck-hand7-v5.js candidate/dist/pirate-deck-hand7-v5.js
+      - name: Record verification on feature branch
+        working-directory: candidate
+        run: |
+          cat > docs/LEGACY_CSS_V13_VERIFIED.md <<'EOF'
+          # Legacy CSS Cleanup V13 verification
+
+          - Existing JavaScript syntax: PASS
+          - Baseline main Astro build: PASS
+          - Candidate Astro build: PASS
+          - V12 runtime stylesheet retained: PASS
+          - V8/V9/V10/V11 legacy files removed: PASS
+          - Runtime index byte parity: PASS
+          - V12 CSS byte parity: PASS
+          - Core gameplay JavaScript byte parity: PASS
+          - No visual/runtime behavior change expected: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/LEGACY_CSS_V13_VERIFIED.md
+          git commit -m 'Record successful Legacy CSS V13 verification'
+          git push origin HEAD:feat/legacy-css-cleanup-v13-20260821
