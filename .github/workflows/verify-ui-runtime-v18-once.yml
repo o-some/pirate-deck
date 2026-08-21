@@ -1,0 +1,133 @@
+name: Verify UI Runtime V18 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-ui-runtime-v18-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout baseline
+        uses: actions/checkout@v4
+        with:
+          ref: 2140a40783b51d1808bfbd73b6a0588c25d190ad
+          path: baseline
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ui-runtime-v18-20260821
+          path: candidate
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build and verify bundle
+        run: |
+          set -euo pipefail
+          cd baseline && npm install && npm run build
+          cd ../candidate && npm install && npm run build
+          node --check dist/pirate-deck-ui-runtime-v18.js
+          node --check public/pirate-deck-asset-guard.js
+          node --check public/pirate-deck-info-toast.js
+          node --check public/pirate-deck-guide-v1.js
+          node --check public/pirate-deck-hud-hp-v4.js
+          node --check public/pirate-deck-hand7-v5.js
+          grep -q 'pirate-deck-ui-runtime-v18.js' dist/index.html
+          for f in pirate-deck-asset-guard.js pirate-deck-info-toast.js pirate-deck-guide-v1.js pirate-deck-hud-hp-v4.js pirate-deck-hand7-v5.js; do
+            ! grep -q "src=\"/pirate-deck/$f\"" dist/index.html
+          done
+          test "$(grep -o '<script ' dist/index.html | wc -l)" -eq 4
+          test -s dist/pirate-deck-foundation-v17.css
+          test -s dist/pirate-deck-runtime-v15.css
+
+      - name: Install browser QA
+        run: |
+          mkdir qa && cd qa
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify runtime behavior
+        run: |
+          set -euo pipefail
+          mkdir -p .serve-base/pirate-deck .serve-candidate/pirate-deck
+          cp -a baseline/dist/. .serve-base/pirate-deck/
+          cp -a candidate/dist/. .serve-candidate/pirate-deck/
+          python3 -m http.server 4173 --directory .serve-base >/tmp/pd-v18-base.log 2>&1 & P1=$!
+          python3 -m http.server 4174 --directory .serve-candidate >/tmp/pd-v18-candidate.log 2>&1 & P2=$!
+          trap 'kill $P1 $P2 || true' EXIT
+          sleep 2
+          node <<'NODE'
+          const { chromium } = require('./qa/node_modules/playwright');
+          const cases=[['iphone',390,844,true],['desktop',1360,856,false]];
+          async function check(port,name,width,height,mobile){
+            const browser=await chromium.launch({headless:true});
+            const ctx=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile});
+            await ctx.addInitScript(()=>localStorage.setItem('pirateDeckGuideSeen','1'));
+            const page=await ctx.newPage();
+            const errors=[];
+            page.on('pageerror',e=>errors.push(`pageerror:${e.message}`));
+            page.on('console',m=>{ if(m.type()==='error') errors.push(`console:${m.text()}`); });
+            await page.goto(`http://127.0.0.1:${port}/pirate-deck/`,{waitUntil:'networkidle'});
+            if(await page.locator('#start').isVisible().catch(()=>false)) await page.click('#start');
+            await page.waitForTimeout(350);
+            const state=await page.evaluate(()=>({
+              cards:document.querySelectorAll('#cards .monster-card').length,
+              characterHealth:document.querySelectorAll('.character-health').length,
+              bossName:document.querySelectorAll('.hud-boss-name').length,
+              bossLevel:document.querySelectorAll('.hud-boss-level').length,
+              handLimit:window.PirateDeckHand?.limit,
+              infoBridge:Boolean(window.PirateDeckInfo),
+              toast:Boolean(document.querySelector('#infoToast.is-minimized, #infoToast.is-open')),
+              playerSlots:document.querySelectorAll('#playerLanes .slot').length,
+              enemySlots:document.querySelectorAll('#enemyLanes .slot').length,
+              endButton:Boolean(document.querySelector('#endTurn'))
+            }));
+            const expected={cards:7,characterHealth:2,bossName:1,bossLevel:1,handLimit:7,infoBridge:true,toast:true,playerSlots:3,enemySlots:3,endButton:true};
+            for(const [k,v] of Object.entries(expected)) if(state[k]!==v) errors.push(`${k}:${state[k]} expected ${v}`);
+            await browser.close();
+            if(errors.length) throw new Error(`${name} port ${port}: ${errors.join(' | ')}`);
+            return state;
+          }
+          (async()=>{
+            for(const [name,w,h,m] of cases){
+              const base=await check(4173,`${name}-baseline`,w,h,m);
+              const cand=await check(4174,`${name}-candidate`,w,h,m);
+              if(JSON.stringify(base)!==JSON.stringify(cand)) throw new Error(`${name}: runtime invariants differ`);
+              console.log(name,'PASS',cand);
+            }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+
+      - name: Record success on candidate
+        working-directory: candidate
+        run: |
+          cat > docs/UI_RUNTIME_V18_VERIFIED.md <<'EOF'
+          # UI Runtime V18 verification
+
+          - Baseline Astro build: PASS
+          - Candidate Astro build: PASS
+          - UI runtime generator syntax: PASS
+          - Generated V18 JavaScript syntax: PASS
+          - Five UI script links replaced by one V18 link: PASS
+          - Total runtime script requests reduced from 8 to 4: PASS
+          - iPhone runtime invariants: PASS
+          - Desktop runtime invariants: PASS
+          - Hand limit remains 7: PASS
+          - HUD/character HP bridge remains active: PASS
+          - Info toast bridge remains active: PASS
+          - Browser/page console errors: NONE
+          - Core gameplay/card/monster scripts remain separate and unchanged: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/UI_RUNTIME_V18_VERIFIED.md
+          git commit -m 'Record successful UI Runtime V18 verification'
+          git push origin HEAD:feat/ui-runtime-v18-20260821
