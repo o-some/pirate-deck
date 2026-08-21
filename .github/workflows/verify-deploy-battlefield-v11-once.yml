@@ -1,0 +1,72 @@
+name: Verify and deploy Battlefield V11 once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-deploy-battlefield-v11-once.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: battlefield-v11-release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build and verify V11
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-monster-cards-v1.js
+          npm install
+          npm run build
+          test -s dist/pirate-deck-battlefield-v11.css
+          grep -q 'pirate-deck-battlefield-v11.css' dist/index.html
+          grep -q 'grid-template-columns:repeat(3,minmax(0,1fr))' dist/pirate-deck-battlefield-v11.css
+          grep -q 'object-fit:contain' dist/pirate-deck-battlefield-v11.css
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified V11 build
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - name: Record successful deployment
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          cat > docs/BATTLEFIELD_V11_PAGES_VERIFIED.md <<EOF
+          # Battlefield Readability V11 Pages verification
+
+          - Astro production build: PASS
+          - V11 battlefield CSS in build: PASS
+          - Three-slot / centered-art rules in build: PASS
+          - GitHub Pages deployment: PASS
+          - Release SHA: \`$RELEASE_SHA\`
+          - Page URL: $PAGE_URL
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/BATTLEFIELD_V11_PAGES_VERIFIED.md
+          git commit -m 'Record successful Battlefield V11 Pages deployment'
+          git push
