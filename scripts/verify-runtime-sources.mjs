@@ -16,7 +16,8 @@ const uiSourceScripts = [
   'pirate-deck-info-toast.js',
   'pirate-deck-guide-v1.js',
   'pirate-deck-hud-hp-v4.js',
-  'pirate-deck-hand7-v5.js'
+  'pirate-deck-hand7-v5.js',
+  'pirate-deck-a11y-v23.js'
 ];
 
 const expectedSourceScripts = new Set([...coreScripts, ...uiSourceScripts]);
