@@ -1,0 +1,35 @@
+name: Wire Live QA V8 once
+
+on:
+  push:
+    branches: [feat/live-qa-v8-20260821]
+    paths:
+      - '.github/workflows/wire-live-qa-v8-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire V8 stylesheet last
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/index.astro')
+          t=p.read_text()
+          anchor='  <link rel="stylesheet" href={`${base}pirate-deck-final-polish-v7.css`} />\n'
+          line='  <link rel="stylesheet" href={`${base}pirate-deck-live-qa-fixes-v8.css`} />\n'
+          if line not in t:
+              if anchor not in t: raise SystemExit('V7 anchor missing')
+              t=t.replace(anchor,anchor+line,1)
+          p.write_text(t)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- src/pages/index.astro
+          git commit -m 'Wire live QA V8 fixes' || exit 0
+          git push
