@@ -1,0 +1,36 @@
+name: QA Astro 7 V28
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify Astro 7 security upgrade and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.19.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify installed Astro version
+        run: npx astro --version
+
+      - name: Require clean high-severity audit
+        run: npm audit --audit-level=high
+
+      - name: Remove one-time QA workflow from build workspace
+        run: rm -f .github/workflows/qa-astro7-v28.yml
+
+      - name: Build and run all release guards
+        run: npm run build
