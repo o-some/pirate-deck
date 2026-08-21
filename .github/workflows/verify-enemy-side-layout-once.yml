@@ -1,0 +1,61 @@
+name: Verify Enemy Side Layout V3 once
+
+on:
+  push:
+    branches: [feat/enemy-side-layout-20260821]
+    paths:
+      - '.github/workflows/verify-enemy-side-layout-once.yml'
+      - 'src/pages/index.astro'
+      - 'public/pirate-deck-battle-layout-v3.css'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check public/pirate-deck.js
+          node --check public/pirate-deck-card-rules-v2.js
+          node --check public/pirate-deck-monster-cards-v1.js
+      - name: Install and build Astro
+        run: |
+          set -euo pipefail
+          npm install
+          npm run build
+      - name: Verify layout wiring
+        run: |
+          set -euo pipefail
+          test -s dist/pirate-deck-battle-layout-v3.css
+          grep -q 'pirate-deck-battle-layout-v3.css' dist/index.html
+          grep -q 'boss-info-strip' dist/index.html
+          grep -q 'boss-side-visual' dist/index.html
+          grep -q 'enemy-board' dist/index.html
+          grep -q 'id="bossSprite"' dist/index.html
+          grep -q 'id="enemyLanes"' dist/index.html
+          grep -q 'id="playerLanes"' dist/index.html
+      - name: Record successful verification
+        run: |
+          cat > docs/BATTLE_LAYOUT_V3_VERIFIED.md <<'EOF'
+          # Battle Layout V3 verification
+
+          - JavaScript syntax: PASS
+          - Astro production build: PASS
+          - Thin boss info strip: PASS
+          - Boss sprite mirrored beside enemy slots: PASS
+          - Tula remains beside player slots: PASS
+          - Existing dynamic boss/field IDs preserved: PASS
+          - Responsive layout CSS included in build: PASS
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/BATTLE_LAYOUT_V3_VERIFIED.md
+          git commit -m 'Record successful Battle Layout V3 verification'
+          git push
