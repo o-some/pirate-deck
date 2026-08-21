@@ -34,3 +34,5 @@ jobs:
           git add -- src/pages/index.astro
           git commit -m 'Wire battlefield readability V11' || exit 0
           git push
+
+# retry-trigger
