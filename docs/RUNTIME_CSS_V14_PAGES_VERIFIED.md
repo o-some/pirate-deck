@@ -6,5 +6,5 @@
 - V4/V5/V6/V7/V12 direct runtime links removed: PASS
 - V14 import order retained: PASS
 - GitHub Pages deployment: PASS
-- Release SHA: `fc8a9ae9c9f68017d4ad95ea852d25a72b0974bd`
+- Release SHA: `42230bdf8a7656e97fffb9adc2f2771717af0d79`
 - Page URL: https://o-some.github.io/pirate-deck/
