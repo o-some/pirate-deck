@@ -25,6 +25,8 @@ const requiredFiles = [
   'public/pirate-deck.js',
   'public/pirate-deck-card-rules-v2.js',
   'public/pirate-deck-monster-cards-v1.js',
+  'public/pirate-deck-gameplay-v30.js',
+  'public/pirate-deck-gameplay-v30.css',
   'public/pirate-deck-a11y-v23.js',
   'scripts/build-foundation-css.mjs',
   'scripts/build-ui-runtime.mjs',
@@ -112,11 +114,24 @@ for (const expected of [
   'pirate-deck-guide-v1.js',
   'pirate-deck-hud-hp-v4.js',
   'pirate-deck-hand7-v5.js',
+  'pirate-deck-gameplay-v30.js',
   'pirate-deck-a11y-v23.js'
 ]) {
   pass(runtimeBuilder.includes(`'${expected}'`), `UI runtime builder lost ${expected}`);
 }
 pass(runtimeBuilder.includes("'pirate-deck-ui-runtime-v18.js'"), 'UI runtime output filename changed unexpectedly');
+
+const gameplay = await readFile(resolve(root, 'public/pirate-deck-gameplay-v30.js'), 'utf8');
+for (const expected of [
+  'BOSS_HP_V30',
+  'function endPlayerTurnV30()',
+  'function planIntent(',
+  'function enemyCrewPhase()',
+  'function showReward()',
+  'Richtig = voller Effekt. Falsch = geschwächter Effekt'
+]) {
+  pass(gameplay.includes(expected), `Gameplay V30 lost required contract marker: ${expected}`);
+}
 
 const styleBuilder = await readFile(resolve(root, 'scripts/build-foundation-css.mjs'), 'utf8');
 const styleSources = [
@@ -131,7 +146,8 @@ const styleSources = [
   'pirate-deck-hand-premium-v3.css',
   'pirate-deck-guide-v1.css',
   'pirate-deck-monster-cards-v1.css',
-  'pirate-deck-battle-layout-v3.css'
+  'pirate-deck-battle-layout-v3.css',
+  'pirate-deck-gameplay-v30.css'
 ];
 for (const expected of styleSources) {
   pass(styleBuilder.includes(`'${expected}'`), `foundation CSS builder lost ${expected}`);
