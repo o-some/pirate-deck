@@ -1,0 +1,55 @@
+/* Pirate Deck — Tactical Gameplay V30 */
+.boss-intent-v30{
+  display:flex;align-items:center;gap:10px;margin:8px auto 2px;padding:8px 11px;max-width:520px;
+  border:1px solid rgba(255,213,116,.42);border-radius:14px;background:linear-gradient(180deg,rgba(7,30,48,.92),rgba(4,19,34,.94));
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 7px 18px rgba(0,0,0,.22);color:#f7ead2;text-align:left;
+}
+.boss-intent-v30.enemy-phase{animation:v30IntentPulse .85s ease-in-out infinite alternate;border-color:rgba(255,105,86,.72)}
+.intent-icon-v30{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.08);font-size:22px}
+.boss-intent-v30>span:last-child{display:grid;gap:1px;min-width:0}
+.boss-intent-v30 small{font-size:9px;letter-spacing:.13em;color:#e0b96c;font-weight:900}
+.boss-intent-v30 strong{font-size:13px;line-height:1.1;color:#fff3d2}
+.boss-intent-v30 em{font-style:normal;font-size:11px;line-height:1.25;color:#cbd8df}
+
+.language-combo-v30{margin:4px auto 8px;padding:7px 10px;width:min(94%,680px);border-radius:12px;border:1px solid rgba(90,218,223,.3);background:rgba(5,45,63,.76);color:#d8fbff;font-size:11px;font-weight:800;text-align:center;box-shadow:inset 0 1px rgba(255,255,255,.06)}
+.phase-chip-v30{margin-left:auto;padding:4px 8px;border-radius:999px;background:rgba(34,176,193,.16);border:1px solid rgba(70,224,233,.35);color:#baf8ff;font-size:10px;font-weight:900;letter-spacing:.05em;white-space:nowrap}
+
+.shield-chip-v30{position:absolute;right:8px;bottom:-8px;z-index:7;padding:3px 7px;border-radius:999px;background:linear-gradient(180deg,#68d4ff,#1985c2);border:1px solid rgba(255,255,255,.75);box-shadow:0 3px 9px rgba(0,62,106,.45);color:#fff;font-size:10px;font-weight:950}
+.shield-chip-v30.boss{background:linear-gradient(180deg,#d4a8ff,#7650cb)}
+.character-health,.hud-health{position:relative}
+
+.end[data-gameplay-v30="1"]{position:relative;overflow:hidden}
+.end[data-gameplay-v30="1"]:not(:disabled)::after{content:"";position:absolute;inset:-40% auto -40% -30%;width:28%;transform:rotate(16deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:v30ButtonSweep 3.1s ease-in-out infinite}
+.end[data-gameplay-v30="1"]:disabled{opacity:.72;filter:saturate(.72);cursor:wait}
+
+.reward-v30{position:fixed;inset:0;z-index:9998;display:grid;place-items:center;padding:18px;background:rgba(1,12,24,.78);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .2s ease}
+.reward-v30.open{opacity:1;pointer-events:auto}
+.reward-card-v30{width:min(620px,96vw);padding:20px;border-radius:24px;border:1px solid rgba(255,214,122,.48);background:radial-gradient(circle at 50% 0,rgba(38,111,123,.32),transparent 36%),linear-gradient(180deg,#082b43,#04192c 72%);box-shadow:0 24px 70px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.09);color:#eef8f8;text-align:center}
+.reward-card-v30>small{color:#ffd780;font-weight:950;letter-spacing:.12em}
+.reward-card-v30 h2{margin:5px 0 2px;font-size:24px;color:#fff2c8}
+.reward-card-v30>p{margin:0 0 15px;color:#aac4cf;font-size:12px}
+.reward-options-v30{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.reward-options-v30 button{display:grid;grid-template-rows:auto auto 1fr;gap:5px;min-height:126px;padding:13px 9px;border:1px solid rgba(92,221,218,.3);border-radius:17px;background:linear-gradient(180deg,rgba(13,69,82,.92),rgba(7,42,59,.96));box-shadow:inset 0 1px rgba(255,255,255,.06);color:#f5ffff;text-align:center;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+.reward-options-v30 button:hover,.reward-options-v30 button:focus-visible{transform:translateY(-3px);border-color:#ffd274;background:linear-gradient(180deg,rgba(21,92,99,.98),rgba(8,52,69,.98));outline:none}
+.reward-options-v30 button>span{font-size:28px}.reward-options-v30 strong{font-size:13px;color:#fff0bd}.reward-options-v30 small{font-size:10px;line-height:1.25;color:#b9d1d8}
+
+.enemy-unit{box-shadow:inset 0 0 0 1px rgba(255,109,87,.2),0 5px 12px rgba(0,0,0,.2)}
+.monster-unit{box-shadow:inset 0 0 0 1px rgba(94,230,225,.18),0 5px 12px rgba(0,0,0,.18)}
+.question-risk{background:rgba(255,183,71,.14)!important;border-color:rgba(255,195,92,.32)!important;color:#ffe0a0!important}
+
+@keyframes v30IntentPulse{from{box-shadow:inset 0 1px rgba(255,255,255,.08),0 7px 18px rgba(0,0,0,.22)}to{box-shadow:inset 0 1px rgba(255,255,255,.08),0 0 22px rgba(255,93,72,.28)}}
+@keyframes v30ButtonSweep{0%,62%{left:-30%}84%,100%{left:120%}}
+
+@media (max-width:640px){
+  .boss-intent-v30{margin:5px 7px 0;padding:6px 8px;gap:7px;border-radius:11px}
+  .intent-icon-v30{width:32px;height:32px;flex-basis:32px;font-size:18px;border-radius:9px}
+  .boss-intent-v30 small{font-size:8px}.boss-intent-v30 strong{font-size:11px}.boss-intent-v30 em{font-size:9px}
+  .language-combo-v30{margin:2px auto 5px;padding:5px 7px;font-size:9px;line-height:1.2}
+  .phase-chip-v30{font-size:8px;padding:3px 6px}
+  .reward-card-v30{padding:16px 12px;border-radius:20px}
+  .reward-card-v30 h2{font-size:20px}.reward-options-v30{grid-template-columns:1fr;gap:7px}
+  .reward-options-v30 button{min-height:66px;grid-template-columns:34px 1fr;grid-template-rows:auto auto;text-align:left;align-items:center;padding:9px 11px}
+  .reward-options-v30 button>span{grid-row:1/3;font-size:24px}.reward-options-v30 strong{font-size:12px}.reward-options-v30 small{font-size:9px}
+}
+
+@media (prefers-reduced-motion:reduce){.boss-intent-v30.enemy-phase,.end[data-gameplay-v30="1"]::after{animation:none!important}.reward-v30,.reward-options-v30 button{transition:none!important}}

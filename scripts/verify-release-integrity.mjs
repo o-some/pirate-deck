@@ -25,6 +25,8 @@ const requiredFiles = [
   'public/pirate-deck.js',
   'public/pirate-deck-card-rules-v2.js',
   'public/pirate-deck-monster-cards-v1.js',
+  'public/pirate-deck-gameplay-v30.js',
+  'public/pirate-deck-gameplay-v30.css',
   'public/pirate-deck-a11y-v23.js',
   'scripts/build-foundation-css.mjs',
   'scripts/build-ui-runtime.mjs',
@@ -32,6 +34,7 @@ const requiredFiles = [
   'scripts/verify-style-sources.mjs',
   'scripts/verify-asset-integrity.mjs',
   'scripts/verify-gameplay-contract.mjs',
+  'scripts/verify-gameplay-v30.mjs',
   'scripts/verify-pages-deploy.mjs',
   'docs/RUNTIME_SOURCE_GUARD_V20_VERIFIED.md',
   'docs/RUNTIME_SOURCE_GUARD_V20_PAGES_VERIFIED.md',
@@ -75,7 +78,8 @@ pass(packageLock.lockfileVersion === 3, 'package-lock.json must use lockfileVers
 pass(packageLock.packages?.['']?.dependencies?.astro === '7.2.4', 'package-lock root Astro dependency must match 7.2.4');
 pass(packageLock.packages?.['']?.engines?.node === '>=22.19.0', 'package-lock root Node engine must match package.json');
 pass(packageLock.packages?.['node_modules/astro']?.version === '7.2.4', 'package-lock must resolve Astro exactly to 7.2.4');
-pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the gameplay contract verifier');
+pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the legacy gameplay contract verifier');
+pass(scripts['verify:gameplay'].includes('verify-gameplay-v30.mjs'), 'verify:gameplay must run the tactical V30 verifier');
 pass(scripts['verify:pages'].includes('verify-pages-deploy.mjs'), 'verify:pages must run the Pages smoke verifier');
 pass(scripts['verify:runtime'].includes('verify:gameplay'), 'verify:runtime must include verify:gameplay');
 pass(scripts['verify:runtime'].includes('verify:release'), 'verify:runtime must include verify:release');
@@ -112,11 +116,24 @@ for (const expected of [
   'pirate-deck-guide-v1.js',
   'pirate-deck-hud-hp-v4.js',
   'pirate-deck-hand7-v5.js',
+  'pirate-deck-gameplay-v30.js',
   'pirate-deck-a11y-v23.js'
 ]) {
   pass(runtimeBuilder.includes(`'${expected}'`), `UI runtime builder lost ${expected}`);
 }
 pass(runtimeBuilder.includes("'pirate-deck-ui-runtime-v18.js'"), 'UI runtime output filename changed unexpectedly');
+
+const gameplay = await readFile(resolve(root, 'public/pirate-deck-gameplay-v30.js'), 'utf8');
+for (const expected of [
+  'BOSS_HP_V30',
+  'function endPlayerTurnV30()',
+  'function planIntent(',
+  'function enemyCrewPhase()',
+  'function showReward()',
+  'Richtig = voller Effekt. Falsch = geschwächter Effekt'
+]) {
+  pass(gameplay.includes(expected), `Gameplay V30 lost required contract marker: ${expected}`);
+}
 
 const styleBuilder = await readFile(resolve(root, 'scripts/build-foundation-css.mjs'), 'utf8');
 const styleSources = [
@@ -131,7 +148,8 @@ const styleSources = [
   'pirate-deck-hand-premium-v3.css',
   'pirate-deck-guide-v1.css',
   'pirate-deck-monster-cards-v1.css',
-  'pirate-deck-battle-layout-v3.css'
+  'pirate-deck-battle-layout-v3.css',
+  'pirate-deck-gameplay-v30.css'
 ];
 for (const expected of styleSources) {
   pass(styleBuilder.includes(`'${expected}'`), `foundation CSS builder lost ${expected}`);

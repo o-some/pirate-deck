@@ -18,7 +18,8 @@ const foundationSources = [
   'pirate-deck-hand-premium-v3.css',
   'pirate-deck-guide-v1.css',
   'pirate-deck-monster-cards-v1.css',
-  'pirate-deck-battle-layout-v3.css'
+  'pirate-deck-battle-layout-v3.css',
+  'pirate-deck-gameplay-v30.css'
 ];
 
 const expectedSources = new Set([...foundationSources, runtimeStylesheet]);
