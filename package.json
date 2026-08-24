@@ -13,7 +13,7 @@
     "verify:sources": "node scripts/verify-runtime-sources.mjs",
     "verify:styles": "node scripts/verify-style-sources.mjs",
     "verify:assets": "node scripts/verify-asset-integrity.mjs",
-    "verify:gameplay": "node scripts/verify-gameplay-contract.mjs",
+    "verify:gameplay": "node scripts/verify-gameplay-contract.mjs && node scripts/verify-gameplay-v30.mjs",
     "verify:release": "node scripts/verify-release-integrity.mjs",
     "verify:pages": "node scripts/verify-pages-deploy.mjs",
     "verify:runtime": "npm run verify:sources && npm run verify:styles && npm run verify:assets && npm run verify:gameplay && npm run verify:release",
