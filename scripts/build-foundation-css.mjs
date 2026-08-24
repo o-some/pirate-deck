@@ -19,6 +19,7 @@ const sourceFiles = [
   'pirate-deck-guide-v1.css',
   'pirate-deck-monster-cards-v1.css',
   'pirate-deck-battle-layout-v3.css',
+  'pirate-deck-gameplay-v30.css',
 ];
 
 const parts = [];
@@ -27,7 +28,7 @@ for (const file of sourceFiles) {
   parts.push(`/* ===== ${file} ===== */\n${css.trimEnd()}\n`);
 }
 
-const banner = `/* Pirate Deck — Foundation CSS V17\n   Generated from the 12 active pre-V15 stylesheets in their exact runtime order.\n   Do not edit this generated file directly. */\n\n`;
+const banner = `/* Pirate Deck — Foundation CSS V17\n   Generated from the active Foundation source stylesheets in exact runtime order.\n   Do not edit this generated file directly. */\n\n`;
 
 await writeFile(outputFile, banner + parts.join('\n'), 'utf8');
 console.log(`Generated ${outputFile} from ${sourceFiles.length} source stylesheets.`);
