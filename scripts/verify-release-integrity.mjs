@@ -34,6 +34,7 @@ const requiredFiles = [
   'scripts/verify-style-sources.mjs',
   'scripts/verify-asset-integrity.mjs',
   'scripts/verify-gameplay-contract.mjs',
+  'scripts/verify-gameplay-v30.mjs',
   'scripts/verify-pages-deploy.mjs',
   'docs/RUNTIME_SOURCE_GUARD_V20_VERIFIED.md',
   'docs/RUNTIME_SOURCE_GUARD_V20_PAGES_VERIFIED.md',
@@ -77,7 +78,8 @@ pass(packageLock.lockfileVersion === 3, 'package-lock.json must use lockfileVers
 pass(packageLock.packages?.['']?.dependencies?.astro === '7.2.4', 'package-lock root Astro dependency must match 7.2.4');
 pass(packageLock.packages?.['']?.engines?.node === '>=22.19.0', 'package-lock root Node engine must match package.json');
 pass(packageLock.packages?.['node_modules/astro']?.version === '7.2.4', 'package-lock must resolve Astro exactly to 7.2.4');
-pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the gameplay contract verifier');
+pass(scripts['verify:gameplay'].includes('verify-gameplay-contract.mjs'), 'verify:gameplay must run the legacy gameplay contract verifier');
+pass(scripts['verify:gameplay'].includes('verify-gameplay-v30.mjs'), 'verify:gameplay must run the tactical V30 verifier');
 pass(scripts['verify:pages'].includes('verify-pages-deploy.mjs'), 'verify:pages must run the Pages smoke verifier');
 pass(scripts['verify:runtime'].includes('verify:gameplay'), 'verify:runtime must include verify:gameplay');
 pass(scripts['verify:runtime'].includes('verify:release'), 'verify:runtime must include verify:release');
